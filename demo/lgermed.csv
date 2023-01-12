@@ -1,0 +1,308 @@
+word,cattex_pos,lemma_rnn,lgerm_out
+hors,PRE,hors,HORS@prép. et adv.
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+ville,NOMcom,ville,VEILLE3@subst. fém.|VIL@adj.|VILLE@subst. fém.
+",",PONfbl,",",",@ponctuation"
+ignominieusement,ADVgen,ignomineusement,IGNOMINIEUSEMENT@adv.
+montée,VERppe,monter,MONTER@verbe|MONTÉ@adj.|MONTÉE@subst. fém.
+sus,PRE,sus,SAVOIR1@verbe|SAVOIR2@verbe|SOUS@prép.|SU@subst. masc.|SUD@subst. masc.|SUS@adv. et prép.|ÊTRE1@verbe
+une,DETndf,un,"UN@art., num. et adj."
+vieille,ADJqua,vieux,VIEILLE1@subst. fém.|VIEILLE2@subst. fém.|VIEILLE3@subst. fém.|VIELLE@subst. fém.|VIEUX@adj.
+mule,NOMcom,mule,MEULE@subst. fém.|MULE1@subst. fém.|MULE2@subst. masc.|MULE3@subst. masc.|MULES@subst. fém. plur.
+nommée,VERppe,nommer,NOMMER@verbe|NOMMÉ@adj.|NOMMÉE@subst. fém.
+Thacor,NOMpro,Tacor,TRÉSOR@subst. masc.@3@35|ACCORD@subst. masc.@3@35&DES-préfixe|TAXEUR@subst. masc.@4@40|TASSER@verbe@4@40|TÂTEUR@subst. masc.@4@45|TACHER@verbe@4@45|TÂCHER@verbe@4@45|DÉCOR@subst. masc.@4@45|DÈS@prép.@4@45
+",",PONfbl,",",",@ponctuation"
+à,PRE,à,À@prép.
+chevauchons,NOMcom,chevauchon,CHEVAUCHER@verbe|CHEVAUCHONS@loc. adv.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+rebours,NOMcom,rebour,REBOURS@adj. et subst. masc.
+:,PONfbl,:,:@ponctuation
+sçavoir,VERinf,savoir,SAVOIR1@verbe
+est,VERcjg,estre,AIDER@verbe|EST@subst. masc.|ÊTRE1@verbe
+",",PONfbl,",",",@ponctuation"
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+cul,NOMcom,cul,CUL@subst. masc.
+tourné,VERppe,tourner,TOURNER@verbe
+vers,PRE,vers,VAIR@adj. et subst. masc.|VER1@subst. masc.|VER3@subst. masc.|VERS1@subst. masc.|VERS2@prép.|VERT@adj. et subst. masc.|VERTIR@verbe
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+teste,NOMcom,teste,TESTE1@subst. masc.|TESTE2@subst. masc.|TESTER@verbe|TEXTE@subst. masc.|TIESTE@subst.|TÊTE@subst. fém.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+mule,NOMcom,mule,MEULE@subst. fém.|MULE1@subst. fém.|MULE2@subst. masc.|MULE3@subst. masc.|MULES@subst. fém. plur.
+",",PONfbl,",",",@ponctuation"
+et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+face,NOMcom,face,FACE@subst. fém.|FAIRE@verbe|FASCE@subst. fém.
+vers,PRE,vers,VAIR@adj. et subst. masc.|VER1@subst. masc.|VER3@subst. masc.|VERS1@subst. masc.|VERS2@prép.|VERT@adj. et subst. masc.|VERTIR@verbe
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+en,PRE,en,AN@subst. masc.|EN1@prép.|EN2@pron. adv.|ON@pron. pers.
+Latin,NOMpro,Latin,LATIN@adj. et subst.
+Nocturnae,NOMpro,Nocturna,NOCTURNE@adj.@2@20
+aves,VERcjg,avoir,AIVE1@subst. masc.|AVES@subst. fém. plur.|AVOIR1@verbe|AVÉ@subst. masc.
+",",PONfbl,",",",@ponctuation"
+entre,PRE,entre,ENTRE@prép.|ENTRER@verbe|ENTRÉ@subst. masc.
+lesquels,PROrel,lequel,LEQUEL@rel. interr.
+celuy,PROdem,cel,CIL@dém.
+qu,PROrel,que,"QUE@conj., rel. interr."
+on,PROind,on,AVOIR1@verbe|HOMME@subst. masc.|HON@interj.|LE@art. déf.|ON@pron. pers.|À@prép.
+nomme,VERcjg,nommer,NOMMER@verbe|NOMMÉ@adj.
+l,DETdef,le,LE@art. déf.|LE@pron. pers.
+Effraye,NOMpro,Effraye,EFFRAYER@verbe
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+Hulote,NOMpro,Hulote,HULOTTE@subst. fém.@1@10|HULOT@subst. masc.@1@10
+",",PONfbl,",",",@ponctuation"
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+Chevache,VERcjg,chevachier,CHEVER@verbe@1@15|CHEVAUCHER@verbe@1@10|CHEVAGE@subst. masc.@1@10|CHEVÊCHE@subst. fém.@1@10|GENAICHE@subst. fém.@2@20
+",",PONfbl,",",",@ponctuation"
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+grand,ADJqua,grand,GRAND@adj.
+et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+petit,ADJqua,petit,"PETIT@adj., adv. et subst."
+Duc,NOMpro,Duc,DEVOIR2@verbe|DOUX@adj. et adv.|DUC1@subst. masc.|DUC2@subst. masc.|DUC3@subst. masc.
+",",PONfbl,",",",@ponctuation"
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+Hibou,NOMpro,Hibout,HIBOU@subst. masc.
+ou,CONcoo,o,AVOIR1@verbe|EN1@prép.|HO@interj.|LE@art. déf.|O1@prép.|OU1@conj. de coord.|OU2@art. contr.|OUÏR@verbe|OÙ@rel. interr.
+Chahuant,NOMpro,Chahant,CHAT-HUANT@subst. masc.
+",",PONfbl,",",",@ponctuation"
+et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+l,DETdef,le,LE@art. déf.|LE@pron. pers.
+Ossifragus,NOMpro,Ossifragus,_MOT_INCONNU
+",",PONfbl,",",",@ponctuation"
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+Charadrias,NOMpro,Charadris,_MOT_INCONNU
+",",PONfbl,",",",@ponctuation"
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+tantost,ADVgen,tantôt,TANTÔT@adv.
+il,PROper,il,IL@pron. pers.
+paitrist,VERcjg,patrir,PÉTRIR@verbe
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+la,DETdef,le,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+poudre,NOMcom,poudre,POUDRE@subst. fém.|POUDRER@verbe
+",",PONfbl,",",",@ponctuation"
+faict,VERppe,faire,FAIRE@verbe|FAIT@subst. masc.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+petites,ADJqua,petit,"PETIT@adj., adv. et subst."
+maisons,NOMcom,maison,MAISON@subst. fém.|MOISON1@subst. fém.|MOISSON1@subst. fém.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+terre,NOMcom,terre,TENIR@verbe|TERRE1@subst. fém.|TERRE2@verbe|TERRER1@verbe|TERRE@nom propre
+",",PONfbl,",",",@ponctuation"
+contrefait,VERcjg,contrefaire,CONTREFAIRE@verbe|CONTREFAIT@adj.
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+chevaucheur,NOMcom,chevaucheur,CHEVAUCHEUR@subst. masc.
+d,PRE,de,DE@prép.
+escuierie,NOMcom,escuierie,ÉCURIE@subst. fém.|ÉCUYERIE@subst. fém.
+sur,PRE,sur,SEURE@adv. de lieu|SUR1@prép.|SUR2@adj.|SUR3@adj. et subst.|TYR@nom propre
+un,DETndf,un,"AVOIR1@verbe|ON@pron. pers.|UN@art., num. et adj.|UNS@art."
+baston,NOMcom,baston,BÂTON@subst. masc.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+bois,NOMcom,bois,BOIRE1@verbe|BOIS@subst. masc.
+",",PONfbl,",",",@ponctuation"
+court,VERcjg,courir,COUR@subst. fém.|COURIR@verbe|COURS1@subst. masc.|COURT@adj. et adv.
+après,PRE,après,APRÈS@prép. et adv.
+les,DETdef,le,LAIS@subst. masc.|LAISSER@verbe|LE@art. déf.|LE@pron. pers.|LEZ@subst. masc.|LÉ@adj. et subst. masc.
+chiens,NOMcom,chien,CHIEN@subst. masc.
+",",PONfbl,",",",@ponctuation"
+et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+les,DETdef,le,LAIS@subst. masc.|LAISSER@verbe|LE@art. déf.|LE@pron. pers.|LEZ@subst. masc.|LÉ@adj. et subst. masc.
+chats,NOMcom,chat,CHAT@subst. masc.
+",",PONfbl,",",",@ponctuation"
+se,CONsub,se,CE1@dém.|CE2@dém.|SE1@pron. pers.|SE2@conj.|SI1@subst. masc.|SI3@conj.|SI4@adv.|SON4@poss.
+",",PONfbl,",",",@ponctuation"
+disoit,VERcjg,dire,DIRE1@verbe
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+prebstre,NOMcom,prêtre,PRÊTRE@subst. masc.
+.,PONfrt,.,.@ponctuation
+-,PONpga,-,-@ponctuation
+Et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+!,PONfrt,!,!@ponctuation
+dit,VERcjg,dire,DIRE1@verbe|DIT@subst. masc.
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+mareschal,NOMcom,maréchal,MARÉCHAL@subst. masc.
+",",PONfbl,",",",@ponctuation"
+je,PROper,je,JE@pron. pers.
+m,PROper,me,ME@pron. pers.|MON1@poss.
+en,PROadv,en,AN@subst. masc.|EN1@prép.|EN2@pron. adv.|ON@pron. pers.
+rapporte,VERcjg,rapporter,RAPPORTER@verbe
+à,PRE,à,À@prép.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+;,PONfbl,;,;@ponctuation
+chevauchez,VERcjg,chevaucher,CHEVAUCHER@verbe
+-la,PROper,il,LÀ@adv.
+à,PRE,à,À@prép.
+vostre,DETpos,vostre,VOTRE@poss.
+aise,NOMcom,aise,AISE@subst. et adj.|AISER@verbe|AISÉ@adj.|ASIE@nom propre
+quand,CONsub,quand,QUAND@adv. et conj.|QUANT@quantif.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+y,PROadv,y,IL@pron. pers.|Y1@subst. masc.|Y2@pron. adv.
+serez,VERcjg,être,SERRER1@verbe|ÊTRE1@verbe
+;,PONfbl,;,;@ponctuation
+mais,CONcoo,mais,MAI@subst. masc.|MAIS1@adv. d'intensité et conj.|MAIS2@adj.|MAIS3@subst. masc.|METS@subst. masc.
+gardez,VERcjg,garder,GARDE1@subst. fém.|GARDE2@subst. masc. et fém.|GARDER@verbe
+-vous,PROper,-vous,VOUS@pron. pers.
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+me,PROper,je,ME@pron. pers.|MON1@poss.
+chevaucher,VERinf,chevaucher,CHEVAUCHER@verbe
+:,PONfbl,:,:@ponctuation
+car,CONcoo,car,CAR@conj.|CHAIR@subst. fém.|CHAR@subst. masc.
+",",PONfbl,",",",@ponctuation"
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+;,PONfbl,;,;@ponctuation
+chevauchez,VERcjg,chevaucher,CHEVAUCHER@verbe
+-la,PROper,il,LÀ@adv.
+à,PRE,à,À@prép.
+vostre,DETpos,vostre,VOTRE@poss.
+aise,NOMcom,aise,AISE@subst. et adj.|AISER@verbe|AISÉ@adj.|ASIE@nom propre
+quand,CONsub,quand,QUAND@adv. et conj.|QUANT@quantif.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+y,PROadv,y,IL@pron. pers.|Y1@subst. masc.|Y2@pron. adv.
+serez,VERcjg,être,SERRER1@verbe|ÊTRE1@verbe
+;,PONfbl,;,;@ponctuation
+mais,CONcoo,mais,MAI@subst. masc.|MAIS1@adv. d'intensité et conj.|MAIS2@adj.|MAIS3@subst. masc.|METS@subst. masc.
+gardez,VERcjg,garder,GARDE1@subst. fém.|GARDE2@subst. masc. et fém.|GARDER@verbe
+-vous,PROper,-vous,VOUS@pron. pers.
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+me,PROper,je,ME@pron. pers.|MON1@poss.
+chevaucher,VERinf,chevaucher,CHEVAUCHER@verbe
+:,PONfbl,:,:@ponctuation
+car,CONcoo,car,CAR@conj.|CHAIR@subst. fém.|CHAR@subst. masc.
+",",PONfbl,",",",@ponctuation"
+s,CONsub,se,SE1@pron. pers.|SE2@conj.|SI3@conj.|SI4@adv.|SON4@poss.
+il,PROimp,il,IL@pron. pers.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+advient,VERcjg,advenir,ADVENIR@verbe
+",",PONfbl,",",",@ponctuation"
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+diable,NOMcom,diable,DIABLE@subst. masc. et interj.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+aura,VERcjg,avoir,AVOIR1@verbe
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+chanté,VERppe,chanter,CHANTER@verbe
+matines,NOMcom,matines,MATINES@subst. fém. plur.|MÂTINE@subst. fém.|MÂTINER@verbe
+.,PONfrt,.,.@ponctuation
+»,PONpdr,»,»@ponctuation
+Le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+prebstre,NOMcom,prêtre,PRÊTRE@subst. masc.
+",",PONfbl,",",",@ponctuation"
+D,INJ,di,D@subst. masc.|DE@prép.|DENIER@subst. masc.|_MOT_NOMBRE@adj. num.
+),PONpdr,),)@ponctuation
+messire,NOMcom,seignor,MESSIRE@subst. masc.
+Jehan,NOMpro,Jean,JEHAN@subst. masc.|JEAN@nom propre
+",",PONfbl,",",",@ponctuation"
+qui,PROrel,que,CUIDER@verbe|QUI1@rel. interr.|QUI2@adv.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+ha,VERcjg,häir,"AH@interj.|AVOIR1@verbe|HA@interj.|HAUT@adj., subst. et adv.|HAÏR@verbe"
+icy,ADVgen,ici,ICI@adv.
+faict,VERppe,faire,FAIRE@verbe|FAIT@subst. masc.
+venir,VERinf,venir,VENIR@verbe
+?,PONfrt,?,?@ponctuation
+Je,PROper,je,JE@pron. pers.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+avois,VERcjg,avoir,AVOI1@subst. masc.|AVOIR1@verbe
+tant,ADVgen,tant,TANT@quantif.|TENDRE2@verbe
+dict,VERppe,dire,DIRE1@verbe|DIT@subst. masc.
+que,CONsub,que,"QUE@conj., rel. interr."
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+ne,ADVneg,ne,NAÎTRE@verbe|NE1@adv. de nég.|NE2@conj.|NI@subst. masc.
+me,PROper,je,ME@pron. pers.|MON1@poss.
+chevauchissiez,VERcjg,chevauchir,CHEVAUCHER@verbe
+point,ADVneg,point,PEINDRE@verbe|POINDRE@verbe|POINT1@subst. masc.|POINT2@adv. de nég.|POUVOIR2@verbe
+",",PONfbl,",",",@ponctuation"
+et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+que,CONsub,que,"QUE@conj., rel. interr."
+j,PROper,je,JE@pron. pers.
+estois,VERcjg,ester,ESTER@verbe|ÊTRE1@verbe
+mauvaise,ADJqua,mauvais,MAUVAIS@adj.
+beste,NOMcom,beste,BÉTER1@verbe|BÊTE@subst. fém. et adj.
+",",PONfbl,",",",@ponctuation"
+et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+n,PROadv,en,NE1@adv. de nég.|NE2@conj.
+en,PROadv,en,AN@subst. masc.|EN1@prép.|EN2@pron. adv.|ON@pron. pers.
+avez,VERcjg,avoir,AVOIR1@verbe|AVÉ@subst. masc.
+rien,PROind,rien,RIEN@indéf.
+voulu,VERppe,vouloir,VOULOIR@verbe|VOULU@adj.
+croire,VERinf,croire,CROIRE@verbe
+!,PONfrt,!,!@ponctuation
+"""",PONpxx,"""","""@ponctuation"
+Le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+»,PONpdr,»,»@ponctuation
+disoit,VERcjg,dire,DIRE1@verbe
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+prebstre,NOMcom,prêtre,PRÊTRE@subst. masc.
+",",PONfbl,",",",@ponctuation"
+et,CONcoo,et,AVOIR1@verbe|ET@conj. de coord.|HAÏR@verbe|ÊTRE1@verbe
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+dit,VERcjg,dire,DIRE1@verbe|DIT@subst. masc.
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+mareschal,NOMcom,maréchal,MARÉCHAL@subst. masc.
+",",PONfbl,",",",@ponctuation"
+Je,PROper,je,JE@pron. pers.
+m,PROper,me,ME@pron. pers.|MON1@poss.
+en,PROadv,en,AN@subst. masc.|EN1@prép.|EN2@pron. adv.|ON@pron. pers.
+rapporte,VERcjg,rapporter,RAPPORTER@verbe
+à,PRE,à,À@prép.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+:,PONfbl,:,:@ponctuation
+Chevauchez,VERcjg,chevaucher,CHEVAUCHER@verbe
+la,PROper,il,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+à,PRE,à,À@prép.
+vostre,DETpos,vostre,VOTRE@poss.
+aise,NOMcom,aise,AISE@subst. et adj.|AISER@verbe|AISÉ@adj.|ASIE@nom propre
+",",PONfbl,",",",@ponctuation"
+quand,CONsub,quand,QUAND@adv. et conj.|QUANT@quantif.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+y,PROadv,y,IL@pron. pers.|Y1@subst. masc.|Y2@pron. adv.
+serez,VERcjg,être,SERRER1@verbe|ÊTRE1@verbe
+.,PONfrt,.,.@ponctuation
+Mais,CONcoo,mais,MAI@subst. masc.|MAIS1@adv. d'intensité et conj.|MAIS2@adj.|MAIS3@subst. masc.|METS@subst. masc.
+gardez,VERcjg,garder,GARDE1@subst. fém.|GARDE2@subst. masc. et fém.|GARDER@verbe
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+me,PROper,je,ME@pron. pers.|MON1@poss.
+chevaucher,VERinf,chevaucher,CHEVAUCHER@verbe
+:,PONfbl,:,:@ponctuation
+Car,CONcoo,car,CAR@conj.|CHAIR@subst. fém.|CHAR@subst. masc.
+s,PONpxx,s,SE1@pron. pers.|SE2@conj.|SI3@conj.|SI4@adv.|SON4@poss.
+à,PRE,à,À@prép.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+:,PONfbl,:,:@ponctuation
+Chevauchez,VERcjg,chevaucher,CHEVAUCHER@verbe
+la,PROper,il,LA@subst. masc.|LE@art. déf.|LE@pron. pers.|LÀ@adv.
+à,PRE,à,À@prép.
+vostre,DETpos,vostre,VOTRE@poss.
+aise,NOMcom,aise,AISE@subst. et adj.|AISER@verbe|AISÉ@adj.|ASIE@nom propre
+",",PONfbl,",",",@ponctuation"
+quand,CONsub,quand,QUAND@adv. et conj.|QUANT@quantif.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+y,PROadv,y,IL@pron. pers.|Y1@subst. masc.|Y2@pron. adv.
+serez,VERcjg,être,SERRER1@verbe|ÊTRE1@verbe
+.,PONfrt,.,.@ponctuation
+Mais,CONcoo,mais,MAI@subst. masc.|MAIS1@adv. d'intensité et conj.|MAIS2@adj.|MAIS3@subst. masc.|METS@subst. masc.
+gardez,VERcjg,garder,GARDE1@subst. fém.|GARDE2@subst. masc. et fém.|GARDER@verbe
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+de,PRE,de,DE@prép.|DÉ1@subst. masc.
+me,PROper,je,ME@pron. pers.|MON1@poss.
+chevaucher,VERinf,chevaucher,CHEVAUCHER@verbe
+:,PONfbl,:,:@ponctuation
+Car,CONcoo,car,CAR@conj.|CHAIR@subst. fém.|CHAR@subst. masc.
+s,CONsub,se,SE1@pron. pers.|SE2@conj.|SI3@conj.|SI4@adv.|SON4@poss.
+il,PROimp,il,IL@pron. pers.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+advient,VERcjg,advenir,ADVENIR@verbe
+",",PONfbl,",",",@ponctuation"
+le,DETdef,le,EUX@pron. pers.|LE@art. déf.|LE@pron. pers.|LI@pron. pers.|LUI@pron. pers.|LÀ@adv.|LÉ@adj. et subst. masc.
+diable,NOMcom,diable,DIABLE@subst. masc. et interj.
+vous,PROper,vous,VOULOIR@verbe|VOUS@pron. pers.
+aura,VERcjg,avoir,AVOIR1@verbe
+bien,ADVgen,bien,BIEN@adv. et subst. masc.
+chanté,VERppe,chanter,CHANTER@verbe
+matines,NOMcom,matines,MATINES@subst. fém. plur.|MÂTINE@subst. fém.|MÂTINER@verbe
+.,PONfrt,.,.@ponctuation
