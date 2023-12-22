@@ -1,0 +1,128 @@
+(?)	X
+(null)	X
+adj	ADJ
+adj.	ADJ
+adj. et adv.	ADJ|ADV
+adj. et pron.	ADJ|PRON
+adj. et pron. indéf.	ADJ|PRON
+adj. et subst.	ADJ|NOUN
+adj. et subst. fém.	ADJ|NOUN
+adj. et subst. fém. plur.	ADJ|NOUN
+adj. et subst. masc.	ADJ|NOUN
+adj. fém.	ADJ
+adj. fém. et subst.	ADJ|NOUN
+adj. fém. et subst. fém.	ADJ|NOUN
+adj. indéf.	ADJ
+adj. indéf. et adv.	ADJ|ADV
+adj. interr.	ADJ
+adj. masc.	ADJ
+adj. num.	NUM
+adj. num. et subst.	NUM|NOUN
+adj. num. et subst. masc.	NUM|NOUN
+adj. ou subst.	ADJ|NOUN
+adj. ou subst. fém.	ADJ|NOUN
+adj. poss.	ADJ
+adj. poss. et subst. masc.	ADJ|NOUN
+adj., adv. et subst.	ADJ|ADV|NOUN
+adj., adv. et subst. masc.	ADJ|ADV|NOUN
+adj., subst. et adv.	ADJ|ADV|NOUN
+adj., subst. masc.	ADJ|NOUN
+adj., subst. masc. et adv.	ADJ|ADV|NOUN
+adj., subst., adv.	ADJ|ADV|NOUN
+adv.	ADV
+adv. conj.	ADV
+adv. d'intensité	ADV
+adv. de lieu	ADV
+adv. de lieu et prép.	ADV|ADP
+adv. de négation	ADV
+adv. de temps	ADV
+adv. et adj.	ADJ|ADV
+adv. et conj.	ADV|CCONJ
+adv. et prép.	ADV|ADP
+adv. et subst.	ADV|NOUN
+adv. et subst. masc.	ADV|NOUN
+adv. interr.	ADV
+adv. subst. masc.	ADV|NOUN
+adv., prép. et subst.	ADV|NOUN|ADP
+adv., prép. et subst. masc.	ADV|NOUN|ADP
+art.	DET
+art. contr.	DET
+art. contr. ou art. indéfini	DET
+art. déf.	DET
+art. et adj.	ADJ|DET
+conj.	CCONJ|SCONJ
+conj. de coord.	CCONJ
+conj. et adv.	ADV|CCONJ|SCONJ
+conj., rel. interr.	SCONJ
+dém.	DET|PRON
+indéf.	ADJ|DET|PRON
+indéf., adv. d'intensité	ADV|PRON
+indéterminé	X
+interj.	INTJ
+interj. et subst. masc.	INTJ|NOUN
+interj. et subst. masc. et fém.	INTJ|NOUN
+interr.	DET|PRON
+loc.	ADV
+loc. adv.	ADV
+loc. adv. lat.	ADV
+loc. conj.	ADV
+loc. lat.	ADV
+mot étranger	X
+mot exclu	X
+mot lat.	X
+mot latin	X
+nom de lieu	PROPN
+nom propre	PROPN
+nom propre et subst. fém.	PROPN|NOUN
+nom propre et subst. masc.	PROPN|NOUN
+nombre	NUM
+num.	NUM
+part. passé	VERB
+part. prés.	VERB
+poss.	ADJ|DET|PRON
+préf.	X
+prép.	ADP
+prép. + pron. pers.	ADP.PRON
+prép. et adv.	ADV|ADP
+prép. et art. contractés	ADP.DET
+prép. et conj.	ADP|CCONJ|SCONJ
+pron.	PRON
+pron. adv.	PRON
+pron. adv. et pers.	PRON
+pron. dém.	PRON
+pron. et adj. indéf.	ADJ|PRON
+pron. et adv.	ADV|PRON
+pron. indéf.	PRON
+pron. pers.	PRON
+rel.	DET|PRON
+subst.	NOUN
+subst. et adj.	ADJ|NOUN
+subst. et adj. fém.	ADJ|NOUN
+subst. et adj. masc.	ADJ|NOUN
+subst. fém.	NOUN
+subst. fém. (et masc.)	NOUN
+subst. fém. et adj.	ADJ|NOUN
+subst. fém. et loc. adv.	ADV|NOUN
+subst. fém. et masc.	NOUN
+subst. fém. et pron. indéf.	NOUN|PRON
+subst. fém. lat.	NOUN
+subst. fém. ou masc.	NOUN
+subst. fém. plur.	NOUN
+subst. masc.	NOUN
+subst. masc. (et fém.)	NOUN
+subst. masc. et adj.	ADJ|NOUN
+subst. masc. et adv.	ADV|NOUN
+subst. masc. et fém.	NOUN
+subst. masc. et fém. plur.	NOUN
+subst. masc. et interj.	INTJ|NOUN
+subst. masc. ou adj.	ADJ|NOUN
+subst. masc. ou fém.	NOUN
+subst. masc. ou fém. plur.	NOUN
+subst. masc. plur.	NOUN
+subst. masc., adj. et adv.	ADJ|ADV|NOUN
+subst. masc., adv. et pron. indéf.	ADV|PRON|NOUN
+subst. ou adj.	ADJ|NOUN
+subst. plur.	NOUN
+verbe	VERB
+verbe pronom.	VERB
+ponctuation	PUNCT
