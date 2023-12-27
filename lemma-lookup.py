@@ -33,6 +33,8 @@ def parse_lexicon(fname):
     return lemma_d, pos_d # Return the two lookup dictionaries
             
 def main(infile, lexicon, outfile='out.txt'):
+    # get normalizers for both files
+    # TODO get_normalizers(infile, lexicon)
     lemma_d, pos_d = parse_lexicon(lexicon)
     with open(infile, 'r', encoding='utf-8') as fin:
         with open(outfile, 'w', encoding='utf-8') as fout:

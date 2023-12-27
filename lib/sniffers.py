@@ -5,8 +5,8 @@ class FormSniffer():
     def __init__(self):
         self.capitalization = False
         self.apostrophe = False
-        self.punctuation = []
-        self.diacritics = []
+        self.punctuation = False
+        self.diacritics = False
     
     def sniff(self, sample):
         if not sample.islower(): self.capitalization = True
