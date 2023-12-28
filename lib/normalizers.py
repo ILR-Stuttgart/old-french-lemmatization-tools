@@ -105,6 +105,3 @@ class Normalizer():
                 char = ''
             new_s += char
         return new_s
-
-            
-            
