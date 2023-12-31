@@ -11,26 +11,7 @@
 import argparse
 
 from lib.sniffers import FormSniffer
-
-def parse_lexicon(fname):
-    # For this script, need to parse the file into two lookup
-    # dictionaries with key = form
-    with open(fname, 'r', encoding='utf-8') as f:
-        lemma_d = {}
-        pos_d = {}
-        for line in f:
-            line = line.rstrip() # remove any trailing whitespace.
-            x = line.split('\t')
-            if len(x) != 3: continue # ignore malformed lines
-            lemma, pos, forms = x[0], x[1], x[2].split('|')
-            for form in forms:
-                if form in lemma_d:
-                    lemma_d[form].append(lemma)
-                    pos_d[form].append(pos)
-                else:
-                    lemma_d[form] = [lemma]
-                    pos_d[form] = [pos]
-    return lemma_d, pos_d # Return the two lookup dictionaries
+from lib.common import parse_lexicon
             
 def main(infile, lexicon, outfile='out.txt'):
     # get normalizers for both files
@@ -44,12 +25,11 @@ def main(infile, lexicon, outfile='out.txt'):
                     fout.write(
                         '\t'.join([
                             tok,
-                            '|'.join(lemma_d[tok]),
-                            '|'.join(pos_d[tok])
+                            '\t'.join([x[0] + '\t' + x[1] for x in zip(pos_d[tok], lemma_d[tok])])
                         ])
                     )
                 else:
-                    fout.write(tok + '\t' + '\t')
+                    fout.write(tok)
                 fout.write('\n')
 
 if __name__ == '__main__':

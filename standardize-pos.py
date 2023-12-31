@@ -22,9 +22,8 @@ def get_map(filepos, mapsdir=MAPSDIR):
         amap = parse_map(opj(mapsdir, mapspath))
         # Allow 10% unrecognized tags discrepancy between the tagsets
         if len(filepos - set(amap.keys())) < len(filepos) / 10:
+            print('Using ' + mapspath)
             return amap
-        print(mapspath)
-        print(len(filepos - set(amap.keys())))
     return {}
     
 def parse_map(infile):
@@ -51,16 +50,18 @@ def main(infile, outfile='out.txt'):
     if not themap:
         raise MapNotFound('No map found for this tagset.')
     # Finally, translate the tags and write the outfile
+    print(themap)
     with open(infile, 'r') as fin:
         with open(outfile, 'w') as fout:
             for line in fin:
                 cols = line.rstrip().split('\t')
-                try:
-                    cols[1] = themap[cols[1]]
-                except IndexError: # no second col; ignore
-                    pass
-                except KeyError: # not in map; delete the tag
-                    cols[1] = ''
+                i = 1
+                while i < len(cols): 
+                    try:
+                        cols[i] = themap[cols[i]]
+                    except KeyError: # not in map; delete the tag
+                        cols[i] = ''
+                    i += 2
                 fout.write('\t'.join(cols) + '\n')
 
 if __name__ == '__main__':
