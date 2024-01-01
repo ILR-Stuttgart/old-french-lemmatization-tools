@@ -46,8 +46,8 @@ adv. subst. masc.	ADV|NOUN
 adv., prép. et subst.	ADV|NOUN|ADP
 adv., prép. et subst. masc.	ADV|NOUN|ADP
 art.	DET
-art. contr.	DET
-art. contr. ou art. indéfini	DET
+art. contr.	ADP.DET
+art. contr. ou art. indéfini	ADP.DET|DET
 art. déf.	DET
 art. et adj.	ADJ|DET
 conj.	CCONJ|SCONJ

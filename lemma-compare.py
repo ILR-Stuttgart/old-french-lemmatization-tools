@@ -15,9 +15,26 @@ class SourceDataError(Error):
     pass
 
 import argparse, os.path, tempfile
-from lib.common import parse_lexicon
 
 opj = os.path.join
+
+udpos_simplified = { # Removes INTJ, PROPN, AUX, DET, NUM, PART, SYM tags
+    'ADJ': 'ADJ', 'ADV': 'ADV', 'INTJ': 'ADV', 'NOUN': 'NOUN',
+    'PROPN': 'NOUN', 'VERB': 'VERB', 'ADP': 'ADP', 'AUX': 'VERB',
+    'CCONJ': 'CCONJ', 'DET': 'ADJ', 'NUM': 'ADJ', 
+    'PART': 'ADV', 'PRON': 'PRON', 'SCONJ': 'SCONJ',
+    'PUNCT': 'PUNCT', 'SYM': 'PUNCT', 'X': 'X'
+}
+
+udpos_very_simple = { # Simplifies to FNC / LEX tags
+
+    'ADJ': 'LEX', 'ADV': 'LEX', 'INTJ': 'LEX', 'NOUN': 'LEX', 
+    'PROPN': 'LEX', 'VERB': 'LEX', 'ADP': 'FNC', 'AUX': 'LEX',
+    'CCONJ': 'FNC', 'DET': 'FNC', 'NUM': 'FNC', 'PART': 'FNC',
+    'PRON': 'FNC', 'SCONJ': 'FNC', 'PUNCT': 'PUNCT', 'SYM': 'PUNCT',
+    'X': 'X'
+
+}
 
 def vote(forms, ignore_numbers=False):
     while '' in forms: forms.remove('') # Remove all empty strings
@@ -47,7 +64,20 @@ def vote(forms, ignore_numbers=False):
     
 def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_poss=[]):
     print(goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
-    score = 0
+    
+    def pos_match(simplify = {}):
+        nonlocal lookup_poss, poss
+        # Now, work out which lookup lemmas have the correct POS tag (simple mode)
+        lemma_ixs = []
+        set2 = set([simplify.get(x, x) for x in poss])
+        for i, lookup_pos in enumerate(lookup_poss):
+            # Simplify the pos tags using the passed dictionary
+            set1 = set([simplify.get(x, x) for x in lookup_pos.split('|')])
+            if set1 & set2: # PoS match for this lemma
+                lemma_ixs.append(i)
+        return(lemma_ixs)
+        
+    lemma, score = '', 0
     # Case 1. There is a gold lemma. Score 0.
     # Note that gold lemmas shouldn't be ambiguous...
     if goldlemmas:
@@ -58,7 +88,7 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
         lemma = lookup_lemmas[0]
         score += 1
         # But if the lookup_lemma part of speech tag doesn't match, add 1 to score
-        if not lookup_poss[0] in poss:
+        if len(set(lookup_poss[0].split('|')) & set(poss)) == 0:
             score += 1
     # Case 2b. There is a single, unambiguous lemma from the lookup but it doesn't
     # match the autolemma
@@ -66,25 +96,86 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
         lemma = lookup_lemmas[0]
         score = 3
         # If the pos tag doesn't match, add 1
-        if not lookup_poss[0] in poss:
+        if len(set(lookup_poss[0].split('|')) & set(poss)) == 0:
             score += 1
-    # Case 3. There are multiple lookup lemmas but only one with the correct pos.
-    elif lookup_lemmas and len(set(lookup_poss) & set(poss)) == 1 and \
-    lookup_poss.count((set(lookup_poss) & set(poss)).pop()) == 1:
-        lemma = lookup_lemmas[lookup_poss.index((set(lookup_poss) & set(poss)).pop())]
-        score = 1
-        # If the autolemma doesn't match, add 1 to the score
-        if autolemmas and not lemma in autolemmas:
-            score += 1
-    # Case 3b. There are multiple lookup lemmas with the correct pos, but
-    # only one matches one of the autolemmas.
-    #elif lookup_lemmas and len(set(lookup_poss) & set(poss)) > 1 or \
-    #(len(set(lookup_poss) & set(poss)) == 1 and lookup_poss.count((set(lookup_poss) & set(poss)).pop()) > 1):
-        # TODO
-        #pass
+    # Cases 3 and 4. There are multiple lookup lemmas.
+    elif lookup_lemmas:
+        # We perform POS disambiguation using the standard tagset, then
+        # the two simplified tagsets.
+        # Score is incremented by 10 with each simplification of the 
+        # tagset.
+        for d in [{}, udpos_simplified, udpos_very_simple]:
+            lemma_ixs = pos_match(d)
+            # Case 3a. Exactly one lookup lemma has the correct POS tag.
+            # PoS disambiguation has worked, use this lemma, score is 1
+            if len(lemma_ixs) == 1:
+                lemma = lookup_lemmas[lemma_ixs[0]]
+                score += 1
+                # Add 2 to score if there are autolemmas and it doesn't match one
+                if autolemmas and not lemma in autolemmas:
+                    score += 2
+            # Multiple lookup lemmas have the correct PoS tag and there are autolemmas
+            elif len(lemma_ixs) > 1 and autolemmas:
+                # Do any match the autolemmas?
+                aset = set(autolemmas) & set([lookup_lemmas[i] for i in lemma_ixs])
+                # Case 3b. Exactly one lookup lemma matches the autolemma.
+                # Use the autolemma, score is 10
+                if len(aset) == 1:
+                    lemma = list(aset)[0]
+                    score += 10
+                # Case 3c. More than one lookup lemma matches more than one autolemma.
+                # Can't resolve; return all lemmas; score = 100 [MUST LOOK AT ME!]
+                elif len(aset) > 1:
+                    lemma = '|'.join(list(aset))
+                    score += 100
+                # Case 3d. More than one lookup lemma but nothing matches the autolemma
+                # Return the AUTOLEMMA, score 1000 (unverified autolemma)
+                else:
+                    # Always use list - set in case identical lemmas with the same
+                    # POS.
+                    lemma = '|'.join(autolemmas)
+                    score += 1000
+            # Case 3e. Multiple lookup lemmas have the correct PoS tag and there are
+            # no autolemmas. Can't resolve; return all lookup lemmas; score = 100
+            elif len(lemma_ixs) > 1:
+                lemma = '|'.join(list(set([lookup_lemmas[i] for i in lemma_ixs])))
+                score += 100
+            # If this iteration of pos disambiguation has produced a
+            # lemma, break out of the for loop
+            if lemma: break
+            # Otherwise, increment score by 40 and keep going
+            score += 40
+        # Case 4. All kinds of PoS disambiguation have failed
+        else: # else statement attached to FOR loop.
+            if autolemmas: # There are autolemmas
+                aset = set(lookup_lemmas) & set(autolemmas)
+                # Case 4a. One or more autolemmas matches the lookup_lemmas.
+                # Use the autolemma but give it a score of 20 (for one)
+                # or 120 (for more than one) (autolemma disambiguation)
+                if aset:
+                    lemma = '|'.join(list(aset))
+                    score = 20 if len(aset) == 1 else 120
+                # Case 4c. No autolemma matches the lookup lemmas.
+                # Can't resolve: return the AUTOLEMMA with a score of
+                # 1000
+                else:
+                    lemma = '|'.join(autolemmas)
+                    score = 1000
+            # There are no autolemmas and pos_disambiguation has failed.
+            # Return all lookup lemmas, with score of 120
+            else:
+                lemma = '|'.join(lookup_lemmas)
+                score = 120
+    # Case 5. No goldlemmas and no lookup lemmas, just autolemmas.
+    # Return the autolemma with a score of 1000 (uncrosschecked autolemmas)
+    elif autolemmas: # Attached to main if statement in module
+        lemma = '|'.join(autolemmas)
+        score = 1000
+    # Case 6. No gold lemmas, no lookup lemmas, no autolemmas, so, er...
+    # no lemmas then.
     else:
-        lemma = 'NOTDONE'
-        score = 100
+        lemma = 'UNKNOWN'
+        score = 2000
     return lemma, score
 
 def disambiguate_autoposlemma(autoposlemmas, outfile='out.txt', ignore_numbers=False):
@@ -145,9 +236,10 @@ def disambiguate_pos(autoposs, goldposs=[], outfile='out.txt'):
     
 def main(
     goldpos=[], goldlemma=[], goldposlemma=[], lookupposlemma=[],
-    autopos=[], autoposlemma=[], outfile='out.txt',
+    autopos=[], autoposlemma=[], outfile=['out.txt'],
     ignore_numbers=False
 ):
+    outfile = outfile[0]
     # Step 1. Sanity check
     if not lookupposlemma and not autoposlemma:
         raise SourceDataError('No source for lemmas provided.')
@@ -180,20 +272,10 @@ def main(
     else:
         autolemmafile = ''
         
-        
-    # Step 5. Load lexicon files
-    if lookupposlemma:
-        l = [parse_lexicon(x, ignore_numbers=ignore_numbers) for x in lookupposlemma]
-        lemma_d, pos_d = l[0][0], l[0][1]
-        for xlemma_d, xpos_d in l[1:]:
-            pos_d.update({key: pos_d.get(key, []) + xpos_d[key] for key in xpos_d})
-            lemma_d.update({key: lemma_d.get(key, []) + xlemma_d[key] for key in xlemma_d})
-    else:
-        pos_d, lemma_d = {}, {}
-        
-    # Step 6. Open the files and begin iteration
+    # Step 5. Open the files and begin iteration
     autolemma_f = open(autolemmafile, 'r', encoding='utf-8') if autolemmafile else None
     goldposlemma_f = open(goldposlemma[0], 'r', encoding='utf-8') if goldposlemma else None
+    lookupposlemma_f = open(lookupposlemma[0], 'r', encoding='utf-8') if lookupposlemma else None
     with open(posfile, 'r', encoding='utf-8') as fin:
         with open(outfile, 'w', encoding='utf-8') as fout:
             for line in fin:
@@ -203,23 +285,28 @@ def main(
                     poss = line_list[1].split('|') # Get the pos list
                 except IndexError:
                     poss = []
+                autolemmas = []
                 if autolemma_f: # Get the (list of) autolemmas
                     al_line = autolemma_f.readline().rstrip()
                     try:
                         autolemmas = al_line.split('\t')[2].split('|')
                     except IndexError:
-                        autolemmas = []
+                        pass
+                goldlemmas = []
                 if goldposlemma_f: # Get the (list of) gold lemmas
                     gpl_line = goldposlemma_f.readline().rstrip()
                     try:
                         goldlemmas = gpl_line.split('\t')[2].split('|')
                     except IndexError:
-                        goldlemmas = []
-                if lookupposlemma:
-                    lookup_lemmas = lemma_d.get(form, [])
-                    lookup_poss = pos_d.get(form, [])
-                else:
-                    lookup_lemmas, lookup_poss = [], []
+                        pass
+                lookup_poss, lookup_lemmas = [], []
+                if lookupposlemma_f:
+                    lpl_line = lookupposlemma_f.readline().rstrip().split('\t')
+                    lookup_poss, lookup_lemmas, i = [], [], 1
+                    while i < len(lpl_line):
+                        lookup_poss.append(lpl_line[i])
+                        lookup_lemmas.append(lpl_line[i + 1])
+                        i += 2
                 lemma, score = score_lemmas(poss, goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
                 fout.write('\t'.join([form, lemma, str(score)]) + '\n')
 
@@ -232,11 +319,11 @@ if __name__ == '__main__':
     parser.add_argument('--goldpos', nargs=1, help='Gold form tab pos file.', default=[])
     parser.add_argument('--goldlemma', nargs=1, help='Gold form tab lemma file.', default=[])
     parser.add_argument('--goldposlemma', nargs=1, help='Gold form tab pos tab lemma file.', default=[])
-    parser.add_argument('--lookupposlemma', nargs='*', help='Lexicon-based form tab pos tab lemma files.', default=[])
+    parser.add_argument('--lookupposlemma', nargs=1, help='Lexicon-based form tab pos tab lemma files.', default=[])
     parser.add_argument('--autopos', nargs='*', help='Automated form tab pos file.', default=[])
     parser.add_argument('--autoposlemma', nargs='*', help='Automated form tab pos tab lemma file.', default=[])
     parser.add_argument('--ignore_numbers', help='Ignores numbers after lemma forms.', action='store_true')
-    parser.add_argument('outfile', help='Output text file.', nargs='?', default='out.txt')
+    parser.add_argument('--outfile', help='Output text file.', nargs=1, default=['out.txt'])
     kwargs = vars(parser.parse_args())
     print(kwargs)
     main(**kwargs)
