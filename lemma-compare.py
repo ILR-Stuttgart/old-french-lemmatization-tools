@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-
 ########################################################################
 # Script to lemmatize a file based on multiple sources                 #
 # - Gold PoS (standardized) and lemmatization                          #
@@ -250,10 +249,25 @@ def disambiguate_pos(autoposs, goldposs=[], outfile='out.txt'):
     if goldpos_f: goldpos_f.close()
     for autopos_f in autopos_fs: autopos_f.close()
     
+def load_lexicons(lexicons, ignore_numbers=False):
+    aset = set([])
+    for lexicon in lexicons:
+        with open(lexicon, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    x = line.split('\t')[0]
+                except IndexError:
+                    continue
+                if ignore_numbers and x[-1].isdigit():
+                    x = x[:-1] # remove number
+                aset.add(x)
+    print(list(aset)[:100])
+    return aset
+    
 def main(
     goldpos=[], goldlemma=[], goldposlemma=[], lookupposlemma=[],
     autopos=[], autoposlemma=[], outfile=['out.txt'],
-    ignore_numbers=False
+    ignore_numbers=False, lexicons=[]
 ):
     outfile = outfile[0]
     # Step 1. Sanity check
@@ -287,6 +301,12 @@ def main(
         disambiguate_autoposlemma(autoposlemma, outfile=autolemmafile, ignore_numbers=ignore_numbers)
     else:
         autolemmafile = ''
+        
+    # Step 5. Load lexicon file for list of available lemmas
+    if lexicons:
+        attested_lemmas = load_lexicons(lexicons, ignore_numbers)
+    else:
+        attested_lemmas = None
         
     # Step 5. Open the files and begin iteration
     autolemma_f = open(autolemmafile, 'r', encoding='utf-8') if autolemmafile else None
@@ -324,7 +344,10 @@ def main(
                         lookup_lemmas.append(lpl_line[i + 1])
                         i += 2
                 lemma, score = score_lemmas(poss, goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
-                fout.write('\t'.join([form, lemma, str(score)]) + '\n')
+                if attested_lemmas and not '|' in lemma and not lemma in attested_lemmas:
+                    # This autolemma is not in the lexicon. Give it a score of -10.
+                    score = -10
+                fout.write('\t'.join([form, '|'.join(poss), lemma, str(score)]) + '\n')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -340,7 +363,8 @@ if __name__ == '__main__':
     parser.add_argument('--autoposlemma', nargs='*', help='Automated form tab pos tab lemma file.', default=[])
     parser.add_argument('--ignore_numbers', help='Ignores numbers after lemma forms.', action='store_true')
     parser.add_argument('--outfile', help='Output text file.', nargs=1, default=['out.txt'])
+    parser.add_argument('--lexicons', help='Lexicon files with all attested lemmas.', nargs='*', default=[])
     kwargs = vars(parser.parse_args())
-    #print(kwargs)
+    print(kwargs)
     main(**kwargs)
 

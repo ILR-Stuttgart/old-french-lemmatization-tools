@@ -7,7 +7,7 @@
 # Try apt install saxonb                                              #
 #######################################################################
 
-import argparse, os.path, sys, subprocess, tempfile
+import argparse, os.path, sys, subprocess, tempfile, re
     
 def main(infile, outfile):
     path = os.path.dirname(os.path.realpath(__file__))
@@ -25,8 +25,15 @@ def main(infile, outfile):
         tmp.close()
         # Write call to saxonb parser
         args = ['saxonb-xslt', os.path.join(tmpdir, 'tmp.xml'), os.path.join(path, 'xsl', 'lgerm-xml2tsv.xsl')]
-        with open(outfile, 'wb') as f:
+        with open(os.path.join(tmpdir, 'tmp.tsv'), 'wb') as f:
             subprocess.run(args, stdout=f) # XSLT parser prints to stout
+        # Capitalize all lemmas which are given as nom propre or nom de lieu
+        with open(os.path.join(tmpdir, 'tmp.tsv'), 'r', encoding='utf-8') as fin:
+            with open(outfile, 'w', encoding='utf-8') as fout:
+                for line in fin:
+                    if line.count('nom propre\t') or line.count('nom de lieu\t'):
+                        line = line[0].upper() + line[1:]
+                    fout.write(line)
 
 def xmlentcheck(s):
     # Replaces ampersands with &amp; (bug in source XML)

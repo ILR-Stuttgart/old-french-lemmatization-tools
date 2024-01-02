@@ -49,8 +49,9 @@ def main(infiles=[], rnnpath='', lexicon='', outfile='', outdir=''):
         
     script_path = os.path.dirname(__file__)
     
-    #tmpdir = '/home/tmr/tmp'
-    with tempfile.TemporaryDirectory() as tmpdir:
+    tmpdir = '/home/tmr/tmp'
+    if True:
+    #with tempfile.TemporaryDirectory() as tmpdir:
         catfile = opj(tmpdir, 'cat.txt')
         concatenater = Concatenater()
         concatenater.concatenate(infiles, catfile)
@@ -71,7 +72,7 @@ def main(infiles=[], rnnpath='', lexicon='', outfile='', outdir=''):
                 '--outfile', opj(tmpdir, 'rnn.txt')
             ]
             print('Calling the RNN tagger.')
-            subprocess.run(args)
+            #subprocess.run(args)
             # 3. Standardize pos tags
             args = [
                 opj(script_path, 'standardize-pos.py'),
@@ -105,7 +106,11 @@ def main(infiles=[], rnnpath='', lexicon='', outfile='', outdir=''):
         if max_cols == 2: args.extend(['--goldpos', infile])
         if max_cols == 3: args.extend(['--goldposlemma', infile])
         if rnnpath: args.extend(['--autoposlemma', opj(tmpdir, 'rnn_normed.txt')])
-        if lexicon: args.extend(['--lookupposlemma', opj(tmpdir, 'lookup_normed.txt')])
+        if lexicon:
+            args.extend([
+                '--lookupposlemma', opj(tmpdir, 'lookup_normed.txt'),
+                '--lexicons', lexicon
+            ])
         print('Comparing results and writing final lemmatization.')
         subprocess.run(args)
         if outdir:
