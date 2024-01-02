@@ -10,7 +10,28 @@
 
 import argparse
 
-from lib.sniffers import FormSniffer
+from lib.normalizers import Normalizer
+
+def sniff_lexicon(s):
+    # Sniffs forms in the lexicon 
+    def contains_char(s, char):
+        if char in s and s.count(char) > 5:
+            return True
+        return False
+        
+    d = {
+        'uppercase': False,
+        'apostrophe': False,
+        'hyphen': False,
+        'is_ascii': False
+    }
+    
+    if not s.islower(): d['uppercase'] = True
+    if contains_char(s, "'"): d['apostrophe'] = True
+    if contains_char(s, "’"): d['apostrophe'] = True
+    if contains_char(s, '-'): d['hyphen'] = True
+    if s.isascii(): d['is_ascii'] = True
+    return d
 
 def parse_lexicon(fname, ignore_numbers=False):
     # For this script, need to parse the file into two lookup
@@ -43,10 +64,12 @@ def main(infile, lexicon, outfile='out.txt', ignore_numbers=False):
     # get normalizers for both files
     # TODO get_normalizers(infile, lexicon)
     lemma_d, pos_d = parse_lexicon(lexicon, ignore_numbers=ignore_numbers)
+    lex_properties = sniff_lexicon(' '.join([x for x in lemma_d.keys()]))
+    normalizer = Normalizer(pnc_in_tok=False, **lex_properties)
     with open(infile, 'r', encoding='utf-8') as fin:
         with open(outfile, 'w', encoding='utf-8') as fout:
             for tok in fin:
-                tok = tok.lstrip().rstrip() # strip whitespace
+                tok = normalizer.normalize_tok(tok.lstrip().rstrip()) # strip whitespace
                 if tok in lemma_d:
                     fout.write(
                         '\t'.join([
@@ -54,6 +77,15 @@ def main(infile, lexicon, outfile='out.txt', ignore_numbers=False):
                             # list - set - zip removes lemma doublets, which 
                             # can arise when ignore_numbers = True.
                             '\t'.join([x[0] + '\t' + x[1] for x in list(set(zip(pos_d[tok], lemma_d[tok])))])
+                        ])
+                    )
+                elif tok.lower() in lemma_d: # It might be worth ignoring the capitalization...
+                    fout.write(
+                        '\t'.join([
+                            tok.lower(),
+                            # list - set - zip removes lemma doublets, which 
+                            # can arise when ignore_numbers = True.
+                            '\t'.join([x[0] + '\t' + x[1] for x in list(set(zip(pos_d[tok.lower()], lemma_d[tok.lower()])))])
                         ])
                     )
                 else:

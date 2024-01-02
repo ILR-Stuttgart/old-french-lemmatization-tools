@@ -67,41 +67,28 @@ class Normalizer():
         'Ÿ': 'Y'
     }
     
-    def __init__(self, apostrophe=False, capitalization=False, 
-        diacritics=False, end_digits=False):
+    def __init__(self, apostrophe=True, uppercase=True, 
+        hyphen=True, is_ascii=False, pnc_in_tok=True):
         self.apostrophe = apostrophe
-        self.capitalization = capitalization
-        self.diacritics = diacritics
-        self.end_digits = end_digits
+        self.hyphen = hyphen
+        self.uppercase = uppercase
+        self.is_ascii = is_ascii
+        self.pnc_in_tok = pnc_in_tok
         
-    def normalize(self, obj):
-        # If a string, normalize it.
-        if isinstance(obj, str):
-            return self._normalize(x)
-        if isinstance(obj, list):
-            try:
-                return [self._normalize(x) for x in obj]
-            except TypeError:
-                print('Warning: normalization failed', file=sys.stderr)
-                return obj
-
-    def _normalize(self, s):
-        if not isinstance(s, str): raise TypeError
+    def normalize_tok(self, s):
         new_s = ''
-        for i, char in enumerate(s):
-            if not self.diacritics: char = self.DIACRITIC_MAP[char]
-            if not self.capitalization: char = char.lower()
-            try:
-                last_char = s[i - 1]
-            except IndexError:
-                last_char = ''
-            try:
-                next_char = s[i + 1]
-            except IndexError:
-                next_char = ''
-            if last_char and re.fullmatch(r"([^\s]'\s?)", last_char + char + next_char):
+        # Test if token contains alphanumeric characters
+        l = [x.isalnum() for x in s]
+        is_pnc = True if not True in l else False
+        for char in s:
+            if self.is_ascii and not char.isascii():
+                char = self.DIACRITIC_MAP.get(char, '_')
+            if not char.isalnum() and not is_pnc and not char in ["'", '’', '-'] and not self.pnc_in_tok:
                 char = ''
-            if last_char and re.fullmatch(r"([^\s][0-9]\s?)", last_char + char + next_char):
+            if char == '-' and not is_pnc and not self.hyphen:
                 char = ''
+            if char in ["'", '’'] and not is_pnc and not self.apostrophe:
+                char = ''
+            if not self.uppercase: char = char.lower()
             new_s += char
         return new_s
