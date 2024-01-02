@@ -18,19 +18,28 @@ class SourceDataError(Error):
     pass
 
 import argparse, subprocess, os.path, tempfile
+from lib.normalizers import Normalizer
 
 opj = os.path.join
 
 def normalize_infile(infile, outfile):
-    # At the moment, just removes all annotation.
+    # Removes all annotation.
+    # Removes all punctuation within tokens except apostrophes and hyphens,
+    # except for Old French numbers
     # Return max number of columns.
+    normalizer = Normalizer(pnc_in_tok=False)
     with open(infile, 'r', encoding='utf-8') as fin:
         with open(outfile, 'w', encoding='utf-8') as fout:
             l = []
             for line in fin:
                 x = line.rstrip().split('\t')
                 l.append(len(x))
-                fout.write(x[0] + '\n')
+                if not x:
+                    fout.write('\n') # Empty line
+                else:
+                    if not x[0][0] == '.' and not x[0][-1] == '.': # don't normalize numbers
+                        x[0] = normalizer.normalize_tok(x[0])
+                    fout.write(x[0] + '\n')
     return max(l)
 
 def main(infile, rnnpath='', lexicon='', outfile='out.txt'):
