@@ -50,7 +50,7 @@ def main(infile, outfile='out.txt'):
     if not themap:
         raise MapNotFound('No map found for this tagset.')
     # Finally, translate the tags and write the outfile
-    print(themap)
+    #print(themap)
     with open(infile, 'r') as fin:
         with open(outfile, 'w') as fout:
             for line in fin:

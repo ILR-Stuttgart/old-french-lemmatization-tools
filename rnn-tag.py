@@ -11,6 +11,7 @@
 #######################################################################
 
 import argparse, os, os.path, shutil, subprocess, tempfile
+from lib.concat import Concatenater
 
 opj = os.path.join
 
@@ -20,18 +21,23 @@ class Error(Exception):
 class InputDataError(Exception):
     pass
     
-def main(rnnpath, lang, infile, outfile, gpu=0):
-    # First, check that the file is s-tokenized.
-    has_empty_lines = check_empty_lines(infile)
+def main(rnnpath, lang, infiles, outdir='', user_outfile='', gpu=0):
     with tempfile.TemporaryDirectory() as tmpdir:
+        # First, concatenate input files
+        infile = opj(tmpdir, 'base.txt')
+        outfile = opj(tmpdir, 'out.txt')
+        concatenater = Concatenater()
+        concatenater.concatenate(infiles, infile)
+        # Second, check that the file is s-tokenized.
+        has_empty_lines = check_empty_lines(infile)
         s_tokenized_infile = opj(tmpdir, 'in.txt')
-        s_tokenized_outfile = opj(tmpdir, 'out.txt')
+        s_tokenized_outfile = opj(tmpdir, 'stok_out.txt')
         if has_empty_lines:
             # Keep original file
             shutil.copy2(infile, s_tokenized_infile)
         else:
             # Add empty lines after punctuation
-            tokenize_sentences(infile, s_tokenized_infile)
+            empty_lines = tokenize_sentences(infile, s_tokenized_infile)
         # Next, call the RNN Tagger with HS's shell script
         if lang == 'old-french' and os.path.exists(opj('.', 'PyRNN', 'rnn-annotate.py')):
             shell_script_standard(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
@@ -40,7 +46,16 @@ def main(rnnpath, lang, infile, outfile, gpu=0):
         if has_empty_lines: # Original file was s-tokenized.
             shutil.move(s_tokenized_outfile, outfile)
         else:
-            remove_empty_lines(s_tokenized_outfile, outfile)
+            remove_empty_lines(s_tokenized_outfile, outfile, empty_lines=empty_lines)
+        # Finally, deal with the concatenated files
+        if outdir:
+            concatenater.split(opj(tmpdir, 'out.txt'), outdir=outdir)
+        elif user_outfile:
+            shutil.copy2(outfile, user_outfile)
+        else: # Nowhere else to dump the output, print it to stdout.
+            with open(outfile, 'r', encoding='utf-8') as f:
+                for line in f:
+                    print(line[:-1])
 
 def check_empty_lines(infile):
     # Checks whether file contains empty lines from a sample
@@ -53,12 +68,14 @@ def check_empty_lines(infile):
 def tokenize_sentences(infile, outfile):
     # Ensures that the input file is tokenized into sentences before
     # calling the RNN tagger.
-    counter, last_pnc = 0, False
+    # Returns a list of booleans recorded which lines were added.
+    counter, last_pnc, l = 0, False, []
     with open(infile, 'r') as fin:
         with open(outfile, 'w') as fout:
             for line in fin:
                 if last_pnc and not line == '\n':
                     fout.write('\n')
+                    l.append(True)
                 last_pnc = False
                 if line[0] in ['.', '!', '?'] and len(line) == 2:
                     last_pnc = True
@@ -66,16 +83,19 @@ def tokenize_sentences(infile, outfile):
                 elif line == '\n':
                     counter += 1
                 fout.write(line)
+                l.append(False)
     if counter == 0:
         raise InputDataError('Cannot sentence-tokenize source file.')
+    return l
         
-def remove_empty_lines(infile, outfile):
+def remove_empty_lines(infile, outfile, empty_lines=[]):
     # Removes blank lines from file
     print('Removing empty lines')
     with open(infile, 'r') as fin:
         with open(outfile, 'w') as fout:
             for line in fin:
-                if line != '\n': fout.write(line)
+                delete = empty_lines.pop(0) if empty_lines else False
+                if not delete: fout.write(line)
     
 def shell_script_standard(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
     
@@ -131,7 +151,7 @@ def _shell_script(
         NMTPAR, #NMTPAR
         opj(tmpdir, 'tmp.reformatted')
     ]
-    print(l)
+    #print(l)
     with open(opj(tmpdir, 'tmp.lemmas'), 'w') as f:
         subprocess.run(l, stdout=f)
         
@@ -159,10 +179,11 @@ if __name__ == '__main__':
                help='selection of the GPU (default is GPU -1)')
     parser.add_argument('rnnpath', help='Path to directory containing the RNN tagger.')
     parser.add_argument('lang', help='Name of language.')
-    parser.add_argument('infile', help='One token per line input file.')
-    parser.add_argument('outfile', help='Output file.')
+    parser.add_argument('--infiles', nargs='+', help='Input files, one token per line.')
+    parser.add_argument('--outdir', help='Output directory.', type=str, default='')
+    parser.add_argument('--outfile', help='Output file.', type=str, default='')
     args = vars(parser.parse_args())
     main(
-        args.pop('rnnpath'), args.pop('lang'), args.pop('infile'), 
-        args.pop('outfile'), args.pop('gpu')
+        args.pop('rnnpath'), args.pop('lang'), args.pop('infiles'), 
+        args.pop('outdir'), args.pop('outfile'), args.pop('gpu')
     )

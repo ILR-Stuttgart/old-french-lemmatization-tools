@@ -64,6 +64,19 @@ def vote(forms, ignore_numbers=False):
     
 def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_poss=[]):
     #print(goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
+    # Guide to scores attributed
+    # -1: more than one option.
+    # 0: autolemma which contradicts the lookup lemma
+    # 1: unverifiable autolemma
+    # 2: single lookup lemma, unverified by tagging
+    # 3: multiple lookup lemmas, pos disambiguation fails but one does match the autolemma(s)
+    # 4: single lookup lemma, doesn't match the pos but does match the autolemma(s)
+    # 5: multiple lookup lemmas, pos_disambiguated but doesn't match the autolemma
+    # 6: single lookup lemma, pos matches but the autolemma doesn't
+    # 7: multiple lookup lemmas, simplified pos_disambiguated and matches the autolemma(s)
+    # 8: multiple lookup lemmas, pos_disambiguated and matches the autolemma(s)
+    # 9: single lookup lemma which matches the pos and the autolemma(s)
+    # 10: gold lemma
     
     def pos_match(simplify = {}):
         nonlocal lookup_poss, poss
@@ -78,42 +91,47 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
         return(lemma_ixs)
         
     lemma, score = '', 0
-    # Case 1. There is a gold lemma. Score 0.
+    # Case 1. There is a gold lemma. Score 10.
     # Note that gold lemmas shouldn't be ambiguous...
     if goldlemmas:
         lemma = '|'.join(goldlemmas)
+        score = 10
     # Case 2a. There is a single, unambiguous lemma from the lookup which 
     # matches the autolemma.
     elif lookup_lemmas and len(lookup_lemmas) == 1 and lookup_lemmas[0] in autolemmas:
         lemma = lookup_lemmas[0]
-        score += 1
-        # But if the lookup_lemma part of speech tag doesn't match, add 1 to score
+        # If the lookup_lemma part of speech tag doesn't match, score is 4, else 9
         if len(set(lookup_poss[0].split('|')) & set(poss)) == 0:
-            score += 1
+            score = 4
+        else:
+            score = 9
     # Case 2b. There is a single, unambiguous lemma from the lookup but it doesn't
     # match the autolemma
     elif lookup_lemmas and len(lookup_lemmas) == 1 and autolemmas:
         lemma = lookup_lemmas[0]
-        score = 3
-        # If the pos tag doesn't match, add 1
+        # If the pos tag doesn't match, either, score is 2. Else 6
         if len(set(lookup_poss[0].split('|')) & set(poss)) == 0:
-            score += 1
+            score = 2
+        else:
+            score = 6
     # Cases 3 and 4. There are multiple lookup lemmas.
     elif lookup_lemmas:
         # We perform POS disambiguation using the standard tagset, then
         # the two simplified tagsets.
-        # Score is incremented by 10 with each simplification of the 
-        # tagset.
-        for d in [{}, udpos_simplified, udpos_very_simple]:
+        for i, d in enumerate([{}, udpos_simplified, udpos_very_simple]):
             lemma_ixs = pos_match(d)
             # Case 3a. Exactly one lookup lemma has the correct POS tag.
             # PoS disambiguation has worked, use this lemma, score is 1
             if len(lemma_ixs) == 1:
                 lemma = lookup_lemmas[lemma_ixs[0]]
-                score += 1
-                # Add 2 to score if there are autolemmas and it doesn't match one
+                # Score is 5 if there are autolemmas and it doesn't match one,
+                # otherwise 8 if i == 0 or 7 if i > 0
                 if autolemmas and not lemma in autolemmas:
-                    score += 2
+                    score = 5
+                elif i == 0:
+                    score = 8
+                else:
+                    score = 7
             # Multiple lookup lemmas have the correct PoS tag and there are autolemmas
             elif len(lemma_ixs) > 1 and autolemmas:
                 # Do any match the autolemmas?
@@ -122,60 +140,58 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
                 # Use the autolemma, score is 10
                 if len(aset) == 1:
                     lemma = list(aset)[0]
-                    score += 10
+                    score = 3
                 # Case 3c. More than one lookup lemma matches more than one autolemma.
-                # Can't resolve; return all lemmas; score = 100 [MUST LOOK AT ME!]
+                # Can't resolve; return all lemmas; score = 0 [MUST LOOK AT ME!]
                 elif len(aset) > 1:
                     lemma = '|'.join(list(aset))
-                    score += 100
+                    score = -1
                 # Case 3d. More than one lookup lemma but nothing matches the autolemma
-                # Return the AUTOLEMMA, score 1000 (unverified autolemma)
+                # Return the AUTOLEMMA, score 0 (unverified autolemma)
                 else:
                     # Always use list - set in case identical lemmas with the same
                     # POS.
                     lemma = '|'.join(autolemmas)
-                    score += 1000
+                    score = 0 if len(autolemmas) == 1 else -1
             # Case 3e. Multiple lookup lemmas have the correct PoS tag and there are
-            # no autolemmas. Can't resolve; return all lookup lemmas; score = 100
+            # no autolemmas. Can't resolve; return all lookup lemmas; score = -1
             elif len(lemma_ixs) > 1:
                 lemma = '|'.join(list(set([lookup_lemmas[i] for i in lemma_ixs])))
-                score += 100
+                score = -1
             # If this iteration of pos disambiguation has produced a
             # lemma, break out of the for loop
             if lemma: break
-            # Otherwise, increment score by 40 and keep going
-            score += 40
         # Case 4. All kinds of PoS disambiguation have failed
         else: # else statement attached to FOR loop.
             if autolemmas: # There are autolemmas
                 aset = set(lookup_lemmas) & set(autolemmas)
                 # Case 4a. One or more autolemmas matches the lookup_lemmas.
-                # Use the autolemma but give it a score of 20 (for one)
-                # or 120 (for more than one) (autolemma disambiguation)
+                # Use the autolemma. Score = 3 if only one matches the autolemma,
+                # else -1 (ambiguous)
                 if aset:
                     lemma = '|'.join(list(aset))
-                    score = 20 if len(aset) == 1 else 120
+                    score = 3 if len(aset) == 1 else -1
                 # Case 4c. No autolemma matches the lookup lemmas.
                 # Can't resolve: return the AUTOLEMMA with a score of
-                # 1000
+                # 0
                 else:
                     lemma = '|'.join(autolemmas)
-                    score = 1000
+                    score = 0 if len(autolemmas) == 1 else -1
             # There are no autolemmas and pos_disambiguation has failed.
-            # Return all lookup lemmas, with score of 120
+            # Return all lookup lemmas, with score of -1
             else:
                 lemma = '|'.join(lookup_lemmas)
-                score = 120
+                score = -1
     # Case 5. No goldlemmas and no lookup lemmas, just autolemmas.
     # Return the autolemma with a score of 1000 (uncrosschecked autolemmas)
     elif autolemmas: # Attached to main if statement in module
         lemma = '|'.join(autolemmas)
-        score = 1000
+        score = 0 if len(autolemmas) == 1 else -1
     # Case 6. No gold lemmas, no lookup lemmas, no autolemmas, so, er...
-    # no lemmas then.
+    # no lemmas then. Score is -2.
     else:
         lemma = 'UNKNOWN'
-        score = 2000
+        score = -2
     return lemma, score
 
 def disambiguate_autoposlemma(autoposlemmas, outfile='out.txt', ignore_numbers=False):
