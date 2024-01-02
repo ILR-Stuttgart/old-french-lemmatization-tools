@@ -47,7 +47,7 @@ def vote(forms, ignore_numbers=False):
                     s += char
             forms[i] = s
     forms = [x.split('|') for x in forms]
-    print(forms)
+    #print(forms)
     d = {}
     for i, options in enumerate(forms):
         weight = len(forms) - i + 100 # 100 points plus a weighting
@@ -63,7 +63,7 @@ def vote(forms, ignore_numbers=False):
     return '|'.join(l)
     
 def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_poss=[]):
-    print(goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
+    #print(goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
     
     def pos_match(simplify = {}):
         nonlocal lookup_poss, poss
@@ -213,7 +213,7 @@ def disambiguate_pos(autoposs, goldposs=[], outfile='out.txt'):
     autopos_fs = [open(x, 'r', encoding='utf-8') for x in autoposs]
     # Iterate over first autopos file (always provided)
     with open(outfile, 'w', encoding='utf-8') as fout:
-        print(outfile + ' opened')
+        #print(outfile + ' opened')
         for line in autopos_fs[0]:
             form = line.rstrip().split('\t')[0]
             lines = [line]
@@ -325,6 +325,6 @@ if __name__ == '__main__':
     parser.add_argument('--ignore_numbers', help='Ignores numbers after lemma forms.', action='store_true')
     parser.add_argument('--outfile', help='Output text file.', nargs=1, default=['out.txt'])
     kwargs = vars(parser.parse_args())
-    print(kwargs)
+    #print(kwargs)
     main(**kwargs)
 

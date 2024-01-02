@@ -7,6 +7,7 @@
 # + Handles empty lines after punctuation                             #
 #   (i.e sentence tokenization requirement)                           #
 # + Write output to a file, not stdout.                               # 
+# + Designed for RNNTagger 1.4.4.                                     #
 #######################################################################
 
 import argparse, os, os.path, shutil, subprocess, tempfile
@@ -32,7 +33,10 @@ def main(rnnpath, lang, infile, outfile, gpu=0):
             # Add empty lines after punctuation
             tokenize_sentences(infile, s_tokenized_infile)
         # Next, call the RNN Tagger with HS's shell script
-        shell_script(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
+        if lang == 'old-french' and os.path.exists(opj('.', 'PyRNN', 'rnn-annotate.py')):
+            shell_script_standard(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
+        else:
+            shell_script_of(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
         if has_empty_lines: # Original file was s-tokenized.
             shutil.move(s_tokenized_outfile, outfile)
         else:
@@ -73,19 +77,43 @@ def remove_empty_lines(infile, outfile):
             for line in fin:
                 if line != '\n': fout.write(line)
     
-def shell_script(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
+def shell_script_standard(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
+    
+    TAGGER = opj('.', 'PyRNN', 'rnn-annotate.py')
+    RNNPAR = opj('.', 'lib', 'PyRNN', lang)
+    LEMMATIZER = opj('.', 'PyNMT', 'nmt-translate.py')
+    NMTPAR = opj('.', 'lib', 'PyNMT', lang)
+    _shell_script(
+        rnnpath, lang, infile, outfile, gpu, tmpdir,
+        TAGGER, RNNPAR, LEMMATIZER, NMTPAR
+    )
+    
+def shell_script_of(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
+    TAGGER = opj('.', 'Python', 'rnn-annotate.py')
+    RNNPAR = opj('.', 'lib', 'tagger')
+    LEMMATIZER = opj('.', 'Python', 'nmt-translate.py')
+    NMTPAR = opj('.', 'lib', 'lemmatizer')
+    _shell_script(
+        rnnpath, lang, infile, outfile, gpu, tmpdir,
+        TAGGER, RNNPAR, LEMMATIZER, NMTPAR
+    )
+    
+def _shell_script(
+    rnnpath, lang, infile, outfile, gpu, tmpdir,
+    TAGGER, RNNPAR, LEMMATIZER, NMTPAR
+):
     # Python reimplementation of Helmut Schmidt's shell script,
     # without the tokenization stage.
     cwd = os.getcwd()
     os.chdir(rnnpath)
-    # Abbreviate os.path.join
     
     # Step 1. Run the POS tagger
     l = [
-        opj('.', 'PyRNN', 'rnn-annotate.py'), # TAGGER
-        opj('.', 'lib', 'PyRNN', lang), # RNNPAR
+        TAGGER, # TAGGER
+        RNNPAR, # RNNPAR
         infile
     ]
+    if gpu == -1: l.extend(['--gpu', '-1']) # Newer versions of tagger need gpu -1
     with open(opj(tmpdir, 'tmp.tagged'), 'w') as f:
         subprocess.run(l, stdout=f)
     # Step 2. Reformat using perl script
@@ -97,12 +125,13 @@ def shell_script(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
         subprocess.run(l, stdout=f)
     # Step 3. Run the lemmatizer
     l = [
-        opj('.', 'PyNMT', 'nmt-translate.py'), # LEMMATIZER
+        LEMMATIZER, # LEMMATIZER
         '--print_source',
         '--gpu', str(gpu), # GPU parameter
-        opj('.', 'lib', 'PyNMT', lang), #NMTPAR
+        NMTPAR, #NMTPAR
         opj(tmpdir, 'tmp.reformatted')
     ]
+    print(l)
     with open(opj(tmpdir, 'tmp.lemmas'), 'w') as f:
         subprocess.run(l, stdout=f)
         
@@ -126,8 +155,8 @@ if __name__ == '__main__':
         'Wrapper to call the RNN Tagger independent of the shell scripts on ' + \
         'pre-tokenized text, with model selection'
         )
-    parser.add_argument('--gpu', type=int, default=0,
-               help='selection of the GPU (default is GPU 0)')
+    parser.add_argument('--gpu', type=int, default=-1,
+               help='selection of the GPU (default is GPU -1)')
     parser.add_argument('rnnpath', help='Path to directory containing the RNN tagger.')
     parser.add_argument('lang', help='Name of language.')
     parser.add_argument('infile', help='One token per line input file.')
