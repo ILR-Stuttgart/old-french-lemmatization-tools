@@ -28,4 +28,5 @@ def main(infile, outfile):
                 for entry in correct_lemmas:
                     if pos == entry[1] and lemma == entry[2] and re.fullmatch(entry[0], form):
                         lemma = entry[3]
-                fout.write('\t'.join([form, pos, lemma, score]))
+                        if score == '5': score = '8'
+                fout.write('\t'.join([form, pos, lemma, score]) + '\n')

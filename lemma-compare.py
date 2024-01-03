@@ -261,7 +261,7 @@ def load_lexicons(lexicons, ignore_numbers=False):
                 if ignore_numbers and x[-1].isdigit():
                     x = x[:-1] # remove number
                 aset.add(x)
-    print(list(aset)[:100])
+    #print(list(aset)[:100])
     return aset
     
 def main(
@@ -365,6 +365,6 @@ if __name__ == '__main__':
     parser.add_argument('--outfile', help='Output text file.', nargs=1, default=['out.txt'])
     parser.add_argument('--lexicons', help='Lexicon files with all attested lemmas.', nargs='*', default=[])
     kwargs = vars(parser.parse_args())
-    print(kwargs)
+    #print(kwargs)
     main(**kwargs)
 
