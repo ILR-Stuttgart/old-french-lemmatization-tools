@@ -17,10 +17,11 @@ class Error(Exception):
 class SourceDataError(Error):
     pass
 
-import argparse, subprocess, os.path, tempfile
+import argparse, subprocess, os.path, tempfile, shutil
 from lib.normalizers import Normalizer
 from lib.concat import Concatenater
 import scripts.ofrpostprocess
+import scripts.standardizepos
 
 opj = os.path.join
 
@@ -44,7 +45,7 @@ def normalize_infile(infile, outfile):
                     fout.write(x[0] + '\n')
     return max(l)
 
-def main(infiles=[], rnnpath='', lexicon='', outfile='', outdir='', tmpdir=''):
+def main(infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', tmpdir=''):
     if (not rnnpath and not lexicon) or not infiles:
         raise SourceDataError('Nothing to do!')
         
@@ -58,12 +59,12 @@ def main(infiles=[], rnnpath='', lexicon='', outfile='', outdir='', tmpdir=''):
     max_cols = normalize_infile(catfile, opj(tmpdir, 'basefile.txt'))
     # 1. Standardize gold pos tags from input file
     if max_cols > 1:
-        args = [
-            opj(script_path, 'standardize-pos.py'),
-            catfile, opj(tmpdir, 'infile_normed.txt')
-        ]
         print('Converting gold part-of-speech tags to UD.')
-        subprocess.run(args)
+        try:
+            scripts.standardizepos.main(catfile, opj(tmpdir, 'infile_normed.txt'))
+        except scripts.standardizepos.MapNotFound:
+            print("Warning: Couldn't standardize pos. Assuming already in UD.")
+            shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
     # 2. Call RNN tagger
     if rnnpath:
         args = [
@@ -74,30 +75,34 @@ def main(infiles=[], rnnpath='', lexicon='', outfile='', outdir='', tmpdir=''):
         print('Calling the RNN tagger.')
         #subprocess.run(args)
         # 3. Standardize pos tags
-        args = [
-            opj(script_path, 'standardize-pos.py'),
-            opj(tmpdir, 'rnn.txt'),
-            opj(tmpdir, 'rnn_normed.txt')
-        ]
         print('Converting part-of-speech tags from the RNN tagger to UD.')
-        subprocess.run(args)
-    if lexicon:
-        # 4. Call lemma lookup on lexicon file
-        args = [
-            opj(script_path, 'lemma-lookup.py'), '--ignore_numbers',
-            lexicon, '--infiles', opj(tmpdir, 'basefile.txt'), 
-            '--outfile', opj(tmpdir, 'lookup.txt')
-        ]
-        print('Lemmatizing using the lexicon file.')
-        subprocess.run(args)
-        # 5. Standardize pos tags
-        args = [
-            opj(script_path, 'standardize-pos.py'),
-            opj(tmpdir, 'lookup.txt'),
-            opj(tmpdir, 'lookup_normed.txt')
-        ]
-        print('Converting part-of-speech tags from the lexicon file to UD.')
-        subprocess.run(args)
+        try:
+            scripts.standardizepos.main(opj(tmpdir, 'rnn.txt'), opj(tmpdir, 'rnn_normed.txt'))
+        except scripts.standardizepos.MapNotFound:
+            print("Warning: Couldn't standardize pos. Assuming already in UD.")
+            shutil.copy(opj(tmpdir, 'rnn.txt'), opj(tmpdir, 'rnn_normed.txt'))
+    if lexicons:
+        # 4. Call lemma lookup on each lexicon file
+        print('Lemmatizing using lexicon files and converting PoS tags to UD.')
+        for i, lexicon in enumerate(lexicons):
+            args = [
+                opj(script_path, 'lemma-lookup.py'), '--ignore_numbers',
+                lexicon, '--infiles', opj(tmpdir, 'basefile.txt'), 
+                '--outfile', opj(tmpdir, 'lookup' + str(i) + '.txt')
+            ]
+            subprocess.run(args)
+            # 5. Standardize pos tags
+            try:
+                scripts.standardizepos.main(
+                    opj(tmpdir, 'lookup' + str(i) + '.txt'),
+                    opj(tmpdir, 'lookup_normed' + str(i) + '.txt')
+                )
+            except scripts.standardizepos.MapNotFound:
+                print("Warning: Couldn't standardize pos. Assuming already in UD.")
+                shutil.copy(
+                    opj(tmpdir, 'lookup' + str(i) + '.txt'),
+                    opj(tmpdir, 'lookup_normed' + str(i) + '.txt')
+                )
     # 6. Run lemma comparison
     args = [
         opj(script_path, 'lemma-compare.py'), '--ignore_numbers',
@@ -106,11 +111,11 @@ def main(infiles=[], rnnpath='', lexicon='', outfile='', outdir='', tmpdir=''):
     if max_cols == 2: args.extend(['--goldpos', infile])
     if max_cols == 3: args.extend(['--goldposlemma', infile])
     if rnnpath: args.extend(['--autoposlemma', opj(tmpdir, 'rnn_normed.txt')])
-    if lexicon:
-        args.extend([
-            '--lookupposlemma', opj(tmpdir, 'lookup_normed.txt'),
-            '--lexicons', lexicon
-        ])
+    if lexicons:
+        args.append('--lookupposlemma')
+        args.extend([opj(tmpdir, 'lookup_normed' + str(i) + '.txt') for i in range(len(lexicons))]),
+        args.append('--lexicons')
+        args.extend([x for x in lexicons])
     print('Comparing results and scoring final lemmatization.')
     subprocess.run(args)
     # 7. Post process
@@ -133,7 +138,7 @@ if __name__ == '__main__':
     )
     parser.add_argument('--infiles', nargs='+', help='Input text file.')
     parser.add_argument('--rnnpath', help='Path to directory containing the RNN tagger.')
-    parser.add_argument('--lexicon', help='Lexicon file.')
+    parser.add_argument('--lexicons', nargs='*', help='Lexicon files.', default=[])
     parser.add_argument('--outdir', help='Output directory.', type=str, default='')
     parser.add_argument('--outfile', help='Output file.', type=str, default='')
     parser.add_argument('--tmpdir', help='Directory for temporary files, if you wish to keep them.', type=str, default='')

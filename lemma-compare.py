@@ -265,7 +265,7 @@ def load_lexicons(lexicons, ignore_numbers=False):
     return aset
     
 def main(
-    goldpos=[], goldlemma=[], goldposlemma=[], lookupposlemma=[],
+    goldpos='', goldposlemma='', lookupposlemma=[],
     autopos=[], autoposlemma=[], outfile=['out.txt'],
     ignore_numbers=False, lexicons=[]
 ):
@@ -275,7 +275,7 @@ def main(
         raise SourceDataError('No source for lemmas provided.')
     if not goldpos and not goldposlemma and not autopos and not autoposlemma:
         raise SourceDataError('No source for pos provided.')
-    if (goldpos and goldposlemma) or (goldlemma and goldposlemma):
+    if goldpos and goldposlemma:
         raise SourceDataError('Multiple sources for gold annotation provided.')
         
     # Step 2. Create a temporary directory for all intermediate operations
@@ -284,10 +284,12 @@ def main(
     
     # Step 3. Disambiguate sources of PoS data by creating a single
     # file, pospath
+    goldposs = [goldpos, goldposlemma]
+    while '' in goldposs: goldposs.remove('')
     if autopos or autoposlemma:
         disambiguate_pos(
             autoposs=autopos + autoposlemma,
-            goldposs=goldpos + goldposlemma,
+            goldposs=goldposs,
             outfile=opj(tmpdir, 'pos.txt')
         )
         posfile = opj(tmpdir, 'pos.txt')
@@ -310,8 +312,8 @@ def main(
         
     # Step 5. Open the files and begin iteration
     autolemma_f = open(autolemmafile, 'r', encoding='utf-8') if autolemmafile else None
-    goldposlemma_f = open(goldposlemma[0], 'r', encoding='utf-8') if goldposlemma else None
-    lookupposlemma_f = open(lookupposlemma[0], 'r', encoding='utf-8') if lookupposlemma else None
+    goldposlemma_f = open(goldposlemma, 'r', encoding='utf-8') if goldposlemma else None
+    lookupposlemma_fs = [open(x, 'r', encoding='utf-8') for x in lookupposlemma]
     with open(posfile, 'r', encoding='utf-8') as fin:
         with open(outfile, 'w', encoding='utf-8') as fout:
             for line in fin:
@@ -336,13 +338,21 @@ def main(
                     except IndexError:
                         pass
                 lookup_poss, lookup_lemmas = [], []
-                if lookupposlemma_f:
-                    lpl_line = lookupposlemma_f.readline().rstrip().split('\t')
-                    lookup_poss, lookup_lemmas, i = [], [], 1
-                    while i < len(lpl_line):
-                        lookup_poss.append(lpl_line[i])
-                        lookup_lemmas.append(lpl_line[i + 1])
-                        i += 2
+                if lookupposlemma_fs:
+                    lookup_poss, lookup_lemmas = [], []
+                    for lookupposlemma_f in lookupposlemma_fs:
+                        lpl_line = lookupposlemma_f.readline().rstrip().split('\t')
+                        i = 1
+                        while i < len(lpl_line):
+                            lookup_poss.append(lpl_line[i])
+                            lookup_lemmas.append(lpl_line[i + 1])
+                            i += 2
+                    if lookup_poss:
+                        # If nothing is found, the following commands
+                        # which eliminate all duplicate values will
+                        # fail at the unzip stage to x, y.
+                        x, y = list(zip(*set(zip(lookup_poss, lookup_lemmas))))
+                        lookup_poss, lookup_lemmas = list(x), list(y)
                 lemma, score = score_lemmas(poss, goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
                 if attested_lemmas and not '|' in lemma and not lemma in attested_lemmas:
                     # This autolemma is not in the lexicon. Give it a score of -10.
@@ -355,10 +365,9 @@ if __name__ == '__main__':
         description = \
         'Script to lemmatize a file based on multiple sources.'
     )
-    parser.add_argument('--goldpos', nargs=1, help='Gold form tab pos file.', default=[])
-    parser.add_argument('--goldlemma', nargs=1, help='Gold form tab lemma file.', default=[])
-    parser.add_argument('--goldposlemma', nargs=1, help='Gold form tab pos tab lemma file.', default=[])
-    parser.add_argument('--lookupposlemma', nargs=1, help='Lexicon-based form tab pos tab lemma files.', default=[])
+    parser.add_argument('--goldpos', type=str, help='Gold form tab pos file.', default='')
+    parser.add_argument('--goldposlemma', type=str, help='Gold form tab pos tab lemma file.', default='')
+    parser.add_argument('--lookupposlemma', nargs='*', help='Lexicon-based form tab pos tab lemma files.', default=[])
     parser.add_argument('--autopos', nargs='*', help='Automated form tab pos file.', default=[])
     parser.add_argument('--autoposlemma', nargs='*', help='Automated form tab pos tab lemma file.', default=[])
     parser.add_argument('--ignore_numbers', help='Ignores numbers after lemma forms.', action='store_true')
