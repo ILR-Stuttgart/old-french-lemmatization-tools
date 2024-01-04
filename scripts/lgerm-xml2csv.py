@@ -24,7 +24,7 @@ def main(infile, outfile):
         f.close()
         tmp.close()
         # Write call to saxonb parser
-        args = ['saxonb-xslt', os.path.join(tmpdir, 'tmp.xml'), os.path.join(path, 'xsl', 'lgerm-xml2tsv.xsl')]
+        args = ['saxonb-xslt', os.path.join(tmpdir, 'tmp.xml'), os.path.join(path, 'lgerm-xml2tsv.xsl')]
         with open(os.path.join(tmpdir, 'tmp.tsv'), 'wb') as f:
             subprocess.run(args, stdout=f) # XSLT parser prints to stout
         # Capitalize all lemmas which are given as nom propre or nom de lieu
