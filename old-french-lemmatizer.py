@@ -46,9 +46,7 @@ def normalize_infile(infile, outfile):
     return max(l)
 
 def main(infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', tmpdir=''):
-    if (not rnnpath and not lexicon) or not infiles:
-        raise SourceDataError('Nothing to do!')
-        
+    
     script_path = os.path.dirname(__file__)
     
     tmpdir = tmpdir or tempfile.TemporaryDirectory().name
@@ -131,6 +129,7 @@ def main(infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', tmpdir=''):
                 print(line[:-1])
     
 if __name__ == '__main__':
+    script_path = os.path.dirname(__file__)
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description = \
@@ -138,7 +137,12 @@ if __name__ == '__main__':
     )
     parser.add_argument('--infiles', nargs='+', help='Input text file.')
     parser.add_argument('--rnnpath', help='Path to directory containing the RNN tagger.')
-    parser.add_argument('--lexicons', nargs='*', help='Lexicon files.', default=[])
+    parser.add_argument('--lexicons', nargs='*', help='Lexicon files (overrides supplied default lexicons)', 
+        default=[
+            opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval.tsv'),
+            opj(script_path, 'lexicons', 'punct.tsv')
+        ]
+    )
     parser.add_argument('--outdir', help='Output directory.', type=str, default='')
     parser.add_argument('--outfile', help='Output file.', type=str, default='')
     parser.add_argument('--tmpdir', help='Directory for temporary files, if you wish to keep them.', type=str, default='')
