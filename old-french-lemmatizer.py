@@ -22,6 +22,7 @@ from lib.normalizers import Normalizer
 from lib.concat import Concatenater
 import scripts.ofrpostprocess
 import scripts.standardizepos
+import scripts.lemmacompare
 
 opj = os.path.join
 
@@ -45,12 +46,10 @@ def normalize_infile(infile, outfile):
                     fout.write(x[0] + '\n')
     return max(l)
 
-def main(infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', tmpdir=''):
+def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir=''):
     
     script_path = os.path.dirname(__file__)
     
-    tmpdir = tmpdir or tempfile.TemporaryDirectory().name
-
     catfile = opj(tmpdir, 'cat.txt')
     concatenater = Concatenater()
     concatenater.concatenate(infiles, catfile)
@@ -71,7 +70,7 @@ def main(infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', tmpdir=''):
             '--outfile', opj(tmpdir, 'rnn.txt')
         ]
         print('Calling the RNN tagger.')
-        #subprocess.run(args)
+        subprocess.run(args)
         # 3. Standardize pos tags
         print('Converting part-of-speech tags from the RNN tagger to UD.')
         try:
@@ -102,20 +101,18 @@ def main(infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', tmpdir=''):
                     opj(tmpdir, 'lookup_normed' + str(i) + '.txt')
                 )
     # 6. Run lemma comparison
-    args = [
-        opj(script_path, 'lemma-compare.py'), '--ignore_numbers',
-        '--outfile', opj(tmpdir, 'out.txt')
-    ]
-    if max_cols == 2: args.extend(['--goldpos', infile])
-    if max_cols == 3: args.extend(['--goldposlemma', infile])
-    if rnnpath: args.extend(['--autoposlemma', opj(tmpdir, 'rnn_normed.txt')])
+    kwargs = {
+        'ignore_numbers': True,
+        'outfile': opj(tmpdir, 'out.txt')
+    }
+    if max_cols == 2: kwargs['goldpos'] =  infile
+    if max_cols == 3: kwargs['goldposlemma'] = infile
+    if rnnpath: kwargs['autoposlemma'] = opj(tmpdir, 'rnn_normed.txt')
     if lexicons:
-        args.append('--lookupposlemma')
-        args.extend([opj(tmpdir, 'lookup_normed' + str(i) + '.txt') for i in range(len(lexicons))]),
-        args.append('--lexicons')
-        args.extend([x for x in lexicons])
+        kwargs['lookupposlemma'] = [opj(tmpdir, 'lookup_normed' + str(i) + '.txt') for i in range(len(lexicons))]
+        kwargs['lexicons'] = [x for x in lexicons]
     print('Comparing results and scoring final lemmatization.')
-    subprocess.run(args)
+    scripts.lemmacompare.main(**kwargs)
     # 7. Post process
     print('Running post-processor.')
     scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
@@ -135,7 +132,7 @@ if __name__ == '__main__':
         description = \
         'Old French lemmatizer.'
     )
-    parser.add_argument('--infiles', nargs='+', help='Input text file.')
+    parser.add_argument('infiles', nargs='+', help='Input text files.')
     parser.add_argument('--rnnpath', help='Path to directory containing the RNN tagger.')
     parser.add_argument('--lexicons', nargs='*', help='Lexicon files (overrides supplied default lexicons)', 
         default=[
@@ -148,4 +145,10 @@ if __name__ == '__main__':
     parser.add_argument('--tmpdir', help='Directory for temporary files, if you wish to keep them.', type=str, default='')
     kwargs = vars(parser.parse_args())
     #print(kwargs)
-    main(**kwargs)
+    if kwargs['tmpdir']:
+        main(**kwargs)
+    else:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kwargs['tmpdir'] = tmpdir
+            main(**kwargs)
+    
