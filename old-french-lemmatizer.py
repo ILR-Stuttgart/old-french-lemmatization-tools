@@ -17,14 +17,16 @@ class Error(Exception):
 class SourceDataError(Error):
     pass
 
-import argparse, subprocess, os.path, tempfile, shutil
+import argparse, subprocess, os.path, tempfile, shutil, textwrap
 from lib.normalizers import Normalizer
 from lib.concat import Concatenater
 import scripts.ofrpostprocess
 import scripts.standardizepos
 import scripts.lemmacompare
+import scripts.convertfiles
 
 opj = os.path.join
+
 
 def normalize_infile(infile, outfile):
     # Removes all annotation.
@@ -46,17 +48,30 @@ def normalize_infile(infile, outfile):
                     fout.write(x[0] + '\n')
     return max(l)
 
-def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir=''):
+def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inputanno='gold'):
     
     script_path = os.path.dirname(__file__)
+    # -1. Run the converter and store converters
+    print('Converting and concatenating input files.')
+    converters, converted_infiles = [], []
+    for infile in infiles:
+        if os.path.splitext(infile)[1] not in ['', '.txt', '.tsv']:
+            converter = scripts.convertfiles.get_converter(infile)
+            converters.append(converter)
+            converted_infiles.append(opj(tmpdir, os.path.basename(infile + '.txt')))
+            converter.from_source(converted_infiles[-1])
+        else:
+            converted_infiles.append(infile)
+            converters.append(None)
     
+    # 0. Concatenate input files
     catfile = opj(tmpdir, 'cat.txt')
     concatenater = Concatenater()
-    concatenater.concatenate(infiles, catfile)
+    concatenater.concatenate(converted_infiles, catfile)
     max_cols = normalize_infile(catfile, opj(tmpdir, 'basefile.txt'))
     # 1. Standardize gold pos tags from input file
     if max_cols > 1:
-        print('Converting gold part-of-speech tags to UD.')
+        print('Converting input part-of-speech tags to UD.')
         try:
             scripts.standardizepos.main(catfile, opj(tmpdir, 'infile_normed.txt'))
         except scripts.standardizepos.MapNotFound:
@@ -105,9 +120,17 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir=''):
         'ignore_numbers': True,
         'outfile': opj(tmpdir, 'out.txt')
     }
-    if max_cols == 2: kwargs['goldpos'] =  infile
-    if max_cols == 3: kwargs['goldposlemma'] = infile
-    if rnnpath: kwargs['autoposlemma'] = opj(tmpdir, 'rnn_normed.txt')
+    if max_cols == 2 and inputanno == 'gold':
+        kwargs['goldpos'] = opj(tmpdir, 'infile_normed.txt')
+    if max_cols == 3 and inputanno == 'gold':
+        kwargs['goldposlemma'] = opj(tmpdir, 'infile_normed.txt')
+    if max_cols == 2 and inputanno == 'auto':
+        kwargs['autopos'] = [opj(tmpdir, 'infile_normed.txt')]
+    kwargs['autoposlemma'] = []
+    if max_cols == 3 and inputanno == 'auto':
+        kwargs['autoposlemma'].append(opj(tmpdir, 'infile_normed.txt'))
+    if rnnpath:
+        kwargs['autoposlemma'].append(opj(tmpdir, 'rnn_normed.txt')) # must be list
     if lexicons:
         kwargs['lookupposlemma'] = [opj(tmpdir, 'lookup_normed' + str(i) + '.txt') for i in range(len(lexicons))]
         kwargs['lexicons'] = [x for x in lexicons]
@@ -117,9 +140,15 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir=''):
     print('Running post-processor.')
     scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     if outdir:
-        concatenater.split(opj(tmpdir, 'out-pp.txt'), outdir=outdir)
+        print('Splitting and back-converting output to original format.')
+        concatenater.split(opj(tmpdir, 'out-pp.txt'), outdir=tmpdir) # overwrites converted infile.
+        for converter, converted_infile in zip(converters, converted_infiles):
+            if converter:
+                converter.to_source(converted_infile, opj(outdir, os.path.basename(converter.source_file)))
+            else:
+                shutil.copy2(converted_infile, opj(outdir, os.path.basename(converted_infile)))
     elif outfile:
-        shutil.copy2(opj(tmpdir, 'out-pp.txt'), user_outfile)
+        shutil.copy2(opj(tmpdir, 'out-pp.txt'), outfile)
     else: # Nowhere else to dump the output, print it to stdout.
         with open(opj(tmpdir, 'out-pp.txt'), 'r', encoding='utf-8') as f:
             for line in f:
@@ -143,6 +172,16 @@ if __name__ == '__main__':
     parser.add_argument('--outdir', help='Output directory.', type=str, default='')
     parser.add_argument('--outfile', help='Output file.', type=str, default='')
     parser.add_argument('--tmpdir', help='Directory for temporary files, if you wish to keep them.', type=str, default='')
+    parser.add_argument('--inputanno', type=str, default='gold',
+        choices=['gold', 'auto', 'ignore'], 
+        help=textwrap.dedent('''
+            Treat POS annotation and lemmas in the input files as:
+            gold        Gold annotation (default).
+            auto        Automatic annotation.
+            ignore      Ignore it.
+            '''
+        )
+    )
     kwargs = vars(parser.parse_args())
     #print(kwargs)
     if kwargs['tmpdir']:

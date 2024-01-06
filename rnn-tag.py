@@ -22,6 +22,8 @@ class InputDataError(Exception):
     pass
     
 def main(rnnpath, lang, infiles, outdir='', user_outfile='', gpu=0):
+    #tmpdir='/home/tmr/tmp/rnn'
+    #if True:
     with tempfile.TemporaryDirectory() as tmpdir:
         # First, concatenate input files
         infile = opj(tmpdir, 'base.txt')
@@ -84,6 +86,9 @@ def tokenize_sentences(infile, outfile):
                     counter += 1
                 fout.write(line)
                 l.append(False)
+            # Must end with an empty line
+            fout.write('\n')
+            l.append(True)
     if counter == 0:
         raise InputDataError('Cannot sentence-tokenize source file.')
     return l

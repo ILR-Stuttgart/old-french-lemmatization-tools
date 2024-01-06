@@ -38,15 +38,15 @@ udpos_very_simple = { # Simplifies to FNC / LEX tags
 def vote(forms, ignore_numbers=False):
     while '' in forms: forms.remove('') # Remove all empty strings
     if not forms: return '' # If only empty strings were offered, return empty string
+    l = []
     for i, form in enumerate(forms):
-        if ignore_numbers: # Remove all digits from the string
-            s = ''
-            for char in form:
-                if not char.isdigit():
-                    s += char
-            forms[i] = s
-    forms = [x.split('|') for x in forms]
+        s = ''
+        for char in form:
+            if not ignore_numbers or not char.isdigit():
+                s += char
+        forms[i] = s
     #print(forms)
+    forms = [x.split('|') for x in forms]
     d = {}
     for i, options in enumerate(forms):
         weight = len(forms) - i + 100 # 100 points plus a weighting
@@ -210,9 +210,16 @@ def disambiguate_autoposlemma(autoposlemmas, outfile='out.txt', ignore_numbers=F
             autoposlemmas = [get_pos_lemma(x) for x in lines]
             lemma = vote([x[1] for x in autoposlemmas], ignore_numbers=ignore_numbers)
             for autopos, autolemma in autoposlemmas:
-                if autolemma == lemma:
+                if lemma == autolemma:
                     pos = autopos
-            fout.write(form + '\t' + pos + '\t' + lemma + '\n')
+            try:
+                fout.write(form + '\t' + pos + '\t' + lemma + '\n')
+            except:
+                print(form)
+                print(line)
+                print(lemma)
+                print(autoposlemmas)
+                raise
             
     for f in autoposlemma_fs: f.close()
 
@@ -266,10 +273,9 @@ def load_lexicons(lexicons, ignore_numbers=False):
     
 def main(
     goldpos='', goldposlemma='', lookupposlemma=[],
-    autopos=[], autoposlemma=[], outfile=['out.txt'],
+    autopos=[], autoposlemma=[], outfile='out.txt',
     ignore_numbers=False, lexicons=[]
 ):
-    outfile = outfile[0]
     # Step 1. Sanity check
     if not lookupposlemma and not autoposlemma:
         raise SourceDataError('No source for lemmas provided.')
@@ -337,6 +343,9 @@ def main(
                         goldlemmas = gpl_line.split('\t')[2].split('|')
                     except IndexError:
                         pass
+                    if ignore_numbers:
+                        # strip digits from gold lemmas too
+                        goldlemmas = [x[:-1] if x[-1].isdigit() else x for x in goldlemmas]
                 lookup_poss, lookup_lemmas = [], []
                 if lookupposlemma_fs:
                     lookup_poss, lookup_lemmas = [], []
@@ -354,8 +363,9 @@ def main(
                         x, y = list(zip(*set(zip(lookup_poss, lookup_lemmas))))
                         lookup_poss, lookup_lemmas = list(x), list(y)
                 lemma, score = score_lemmas(poss, goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
-                if attested_lemmas and not '|' in lemma and not lemma in attested_lemmas:
+                if attested_lemmas and not '|' in lemma and not lemma in attested_lemmas and score != 10:
                     # This autolemma is not in the lexicon. Give it a score of -10.
+                    # Unless it's already a gold lemma and has a score of 10.
                     score = -10
                 fout.write('\t'.join([form, '|'.join(poss), lemma, str(score)]) + '\n')
 
@@ -371,7 +381,7 @@ if __name__ == '__main__':
     parser.add_argument('--autopos', nargs='*', help='Automated form tab pos file.', default=[])
     parser.add_argument('--autoposlemma', nargs='*', help='Automated form tab pos tab lemma file.', default=[])
     parser.add_argument('--ignore_numbers', help='Ignores numbers after lemma forms.', action='store_true')
-    parser.add_argument('--outfile', help='Output text file.', nargs=1, default=['out.txt'])
+    parser.add_argument('--outfile', type=str, help='Output text file.', default='out.txt')
     parser.add_argument('--lexicons', help='Lexicon files with all attested lemmas.', nargs='*', default=[])
     kwargs = vars(parser.parse_args())
     #print(kwargs)
