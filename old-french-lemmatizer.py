@@ -40,7 +40,7 @@ def normalize_infile(infile, outfile):
             for line in fin:
                 x = line.rstrip().split('\t')
                 l.append(len(x))
-                if not x:
+                if not x[0]: # empty line will split to give a list with an empty string
                     fout.write('\n') # Empty line
                 else:
                     if not x[0][0] == '.' and not x[0][-1] == '.': # don't normalize numbers
@@ -85,7 +85,7 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inp
             '--outfile', opj(tmpdir, 'rnn.txt')
         ]
         print('Calling the RNN tagger.')
-        subprocess.run(args)
+        #subprocess.run(args)
         # 3. Standardize pos tags
         print('Converting part-of-speech tags from the RNN tagger to UD.')
         try:
@@ -139,14 +139,18 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inp
     # 7. Post process
     print('Running post-processor.')
     scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
-    if outdir:
+    if outdir or \
+    (outfile and len(infiles) == 1 and os.path.splitext(outfile)[1] == os.path.splitext(infiles[0])[1]):
+        # Only reconverts files if an outdir is given, or one one infile
+        # was given with an outfile with an identical extension.
         print('Splitting and back-converting output to original format.')
         concatenater.split(opj(tmpdir, 'out-pp.txt'), outdir=tmpdir) # overwrites converted infile.
         for converter, converted_infile in zip(converters, converted_infiles):
+            outfile = outfile or opj(outdir, os.path.basename(converter.source_file)) # uses outfile if passed
             if converter:
-                converter.to_source(converted_infile, opj(outdir, os.path.basename(converter.source_file)))
+                converter.to_source(converted_infile, outfile)
             else:
-                shutil.copy2(converted_infile, opj(outdir, os.path.basename(converted_infile)))
+                shutil.copy2(converted_infile, outfile)
     elif outfile:
         shutil.copy2(opj(tmpdir, 'out-pp.txt'), outfile)
     else: # Nowhere else to dump the output, print it to stdout.

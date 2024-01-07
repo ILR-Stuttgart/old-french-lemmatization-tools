@@ -92,6 +92,62 @@ class CsvConverter(Converter):
                 writer = csv.DictWriter(fout, fieldnames=header)
                 writer.writeheader()
                 writer.writerows(rows)
+                
+class ConlluConverter(Converter):
+    
+    def from_source(self, outfile):
+        with open(self.source_file, newline='', encoding=self.source_encoding) as fin:
+            with open(outfile, 'w', encoding='utf-8') as fout:
+                counter = 0
+                for i, line in enumerate(fin):
+                    fields = line.rstrip().split('\t')
+                    if len(fields) == 10 or line == '\n': # only write these lines
+                        if len(fields) == 10: # line contains data
+                            fout.write(fields[1]) # write word
+                            if fields[3] not in ['_', ''] and fields[4] not in ['_', '']:
+                                if fields[3] not in ['_', '']: #upos tag
+                                    fout.write('\t' + fields[3])
+                                else: # xpos tag
+                                    fout.write('\t' + fields[4])
+                                if fields[2] not in ['_', '']: # lemma; only write if also pos
+                                    fout.write('\t' + fields[2])
+                        # write line end and increment counter
+                        fout.write('\n')
+                        self.linemap.append((i, counter))
+                        counter += 1
+                        
+    def to_source(self, infile, outfile):
+        with open(infile, encoding='utf-8') as fin:
+            with open(self.source_file, encoding=self.source_encoding) as source_file:
+                with open(outfile, 'w', encoding='utf-8') as fout:
+                    i = -1
+                    for maptuple in self.linemap:
+                        fin_line = fin.readline()
+                        source_line = source_file.readline()
+                        i += 1
+                        while i < maptuple[0]: # get right source line
+                            fout.write(source_line)
+                            source_line = source_file.readline()
+                            i += 1
+                        if fin_line == '\n': # write empty line and skip the rest
+                            fout.write(source_line)
+                            continue
+                        fields = source_line.rstrip().split('\t')
+                        fin_fields = fin_line.rstrip().split('\t')
+                        try:
+                            fields[3] = fin_fields[1] # UPOS
+                        except IndexError:
+                            print(source_line)
+                            print(fin_line)
+                            print(self.linemap)
+                            print(maptuple)
+                            raise
+                        fields[2] = fin_fields[2] # LEMMA
+                        fields[9] += '|lemmascore=' + str(fin_fields[3]) # score
+                        fout.write('\t'.join(fields) + '\n')
+                    while source_line != '': # continue until end of source file.
+                        source_line = source_file.readline()
+                        if source_line: fout.write(source_line)
                     
 def get_converter(source_file):
     ext = os.path.splitext(source_file)[1]
@@ -101,8 +157,8 @@ def get_converter(source_file):
         #raise UnknownFileType('This type of file is not supported.')
         return CsvConverter(source_file)
     if ext in ['.conllu']:
-        raise UnknownFileType('This type of file is not supported.')
-        #return CsvConverter(source_file)
+        #raise UnknownFileType('This type of file is not supported.')
+        return ConlluConverter(source_file)
     if ext in ['.psd']:
         raise UnknownFileType('This type of file is not supported.')
         #return PsdConverter(source_file)

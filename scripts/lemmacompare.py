@@ -362,12 +362,16 @@ def main(
                         # fail at the unzip stage to x, y.
                         x, y = list(zip(*set(zip(lookup_poss, lookup_lemmas))))
                         lookup_poss, lookup_lemmas = list(x), list(y)
-                lemma, score = score_lemmas(poss, goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
-                if attested_lemmas and not '|' in lemma and not lemma in attested_lemmas and score != 10:
-                    # This autolemma is not in the lexicon. Give it a score of -10.
-                    # Unless it's already a gold lemma and has a score of 10.
-                    score = -10
-                fout.write('\t'.join([form, '|'.join(poss), lemma, str(score)]) + '\n')
+                # Finished reading the input files now check for empty line
+                if form == '':
+                    fout.write('\n') # just write empty line
+                else:
+                    lemma, score = score_lemmas(poss, goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
+                    if attested_lemmas and not '|' in lemma and not lemma in attested_lemmas and score != 10:
+                        # This autolemma is not in the lexicon. Give it a score of -10.
+                        # Unless it's already a gold lemma and has a score of 10.
+                        score = -10
+                    fout.write('\t'.join([form, '|'.join(poss), lemma, str(score)]) + '\n')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

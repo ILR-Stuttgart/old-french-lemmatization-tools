@@ -31,24 +31,25 @@ def main(rnnpath, lang, infiles, outdir='', user_outfile='', gpu=0):
         concatenater = Concatenater()
         concatenater.concatenate(infiles, infile)
         # Second, check that the file is s-tokenized.
-        has_empty_lines = check_empty_lines(infile)
+        #has_empty_lines = check_empty_lines(infile)
         s_tokenized_infile = opj(tmpdir, 'in.txt')
         s_tokenized_outfile = opj(tmpdir, 'stok_out.txt')
-        if has_empty_lines:
+        #if has_empty_lines:
             # Keep original file
-            shutil.copy2(infile, s_tokenized_infile)
-        else:
-            # Add empty lines after punctuation
-            empty_lines = tokenize_sentences(infile, s_tokenized_infile)
+        #    shutil.copy2(infile, s_tokenized_infile)
+        #else:
+        # Standardize empty lines
+        empty_lines = tokenize_sentences(infile, s_tokenized_infile)
+        #print(empty_lines)
         # Next, call the RNN Tagger with HS's shell script
         if lang == 'old-french' and os.path.exists(opj('.', 'PyRNN', 'rnn-annotate.py')):
             shell_script_standard(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
         else:
             shell_script_of(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
-        if has_empty_lines: # Original file was s-tokenized.
-            shutil.move(s_tokenized_outfile, outfile)
-        else:
-            remove_empty_lines(s_tokenized_outfile, outfile, empty_lines=empty_lines)
+        #if has_empty_lines: # Original file was s-tokenized.
+        #    shutil.move(s_tokenized_outfile, outfile)
+        #else:
+        remove_empty_lines(s_tokenized_outfile, outfile, empty_lines=empty_lines)
         # Finally, deal with the concatenated files
         if outdir:
             concatenater.split(opj(tmpdir, 'out.txt'), outdir=outdir)
@@ -70,37 +71,46 @@ def check_empty_lines(infile):
 def tokenize_sentences(infile, outfile):
     # Ensures that the input file is tokenized into sentences before
     # calling the RNN tagger.
-    # Returns a list of booleans recorded which lines were added.
-    counter, last_pnc, l = 0, False, []
+    # Returns a list of integers recalling how the empty lines were modified.
+    # The RNN Tagger is VERY FUSSY.
+    # - no double empty lines
+    # - no initial empty line
+    # This subroutine fixes the input files so these don't exist.
+    counter, last_pnc, l, remove = 0, False, [], 0
     with open(infile, 'r') as fin:
         with open(outfile, 'w') as fout:
             for line in fin:
-                if last_pnc and not line == '\n':
+                if counter == 0 and line == '\n': # double space
+                    remove += 1 # add this many empty lines before line
+                    continue # don't do anything else
+                if (last_pnc or counter == 500) and not line == '\n': # max snt length added
                     fout.write('\n')
-                    l.append(True)
+                    counter, remove = 0, 0
+                    l.append(-1) # remove this empty line
                 last_pnc = False
                 if line[0] in ['.', '!', '?'] and len(line) == 2:
                     last_pnc = True
-                    counter += 1
-                elif line == '\n':
-                    counter += 1
-                fout.write(line)
-                l.append(False)
+                fout.write(line) # write the line
+                counter += 1 # increment counter
+                l.append(remove) # indicate how many preceding empty lines to remove
+                remove = 0 # reset remove to 0
+                if line == '\n': # if we've just written an empty line from the input file
+                    counter = 0 # reset counter to 0
             # Must end with an empty line
             fout.write('\n')
-            l.append(True)
-    if counter == 0:
-        raise InputDataError('Cannot sentence-tokenize source file.')
+            l.append(-1)
     return l
         
 def remove_empty_lines(infile, outfile, empty_lines=[]):
     # Removes blank lines from file
-    print('Removing empty lines')
+    print('Restoring empty lines')
     with open(infile, 'r') as fin:
         with open(outfile, 'w') as fout:
             for line in fin:
-                delete = empty_lines.pop(0) if empty_lines else False
-                if not delete: fout.write(line)
+                add = empty_lines.pop(0) if empty_lines else 0
+                if add > 0: fout.write('\n' * add) # add extra empty lines back in
+                if add >= 0: # if add >= 0, write the line
+                    fout.write(line)
     
 def shell_script_standard(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
     
