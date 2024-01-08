@@ -86,7 +86,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             '--outfile', opj(tmpdir, 'rnn.txt')
         ]
         print('Calling the RNN tagger.')
-        #subprocess.run(args)
+        subprocess.run(args)
         taggerouts.append(opj(tmpdir, 'rnn.txt'))
     # 2b. Call the Tree Tagger
     if ttpath:
