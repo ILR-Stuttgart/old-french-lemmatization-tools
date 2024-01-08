@@ -14,6 +14,9 @@ correct_lemmas = [
     ('.*', 'ADP.DET', 'ès', 'en.le'),
     ('.*', 'ADP.DET', 'ou', 'en.le'),
     ('en', 'ADV', 'an', 'en'),
+    ('[Ll]i', 'PRON', 'il', 'li'),
+    ('[Ss]ire', 'NOUN', 'seigneur', 'sire'),
+    ('[Mm]ort', 'NOUN', 'mourir', 'mort'), # pos disambiguation fails here because of mors NOUN
 ]
 
 def main(infile, outfile):
@@ -28,5 +31,5 @@ def main(infile, outfile):
                 for entry in correct_lemmas:
                     if pos == entry[1] and lemma == entry[2] and re.fullmatch(entry[0], form):
                         lemma = entry[3]
-                        if score == '5': score = '8'
+                        score = '8'
                 fout.write('\t'.join([form, pos, lemma, score]) + '\n')

@@ -48,7 +48,7 @@ def normalize_infile(infile, outfile):
                     fout.write(x[0] + '\n')
     return max(l)
 
-def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inputanno='gold'):
+def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', outdir='', inputanno='gold'):
     
     script_path = os.path.dirname(__file__)
     # -1. Run the converter and store converters
@@ -77,6 +77,7 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inp
         except scripts.standardizepos.MapNotFound:
             print("Warning: Couldn't standardize pos. Assuming already in UD.")
             shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
+    taggerouts = []
     # 2. Call RNN tagger
     if rnnpath:
         args = [
@@ -86,13 +87,41 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inp
         ]
         print('Calling the RNN tagger.')
         #subprocess.run(args)
-        # 3. Standardize pos tags
-        print('Converting part-of-speech tags from the RNN tagger to UD.')
+        taggerouts.append(opj(tmpdir, 'rnn.txt'))
+    # 2b. Call the Tree Tagger
+    if ttpath:
+        # BFM fro model
+        args = [
+            opj(script_path, 'tree-tag.py'),
+            ttpath, '--lang', 'old-french', '--infiles', opj(tmpdir, 'basefile.txt'),
+            '--outfile', opj(tmpdir, 'tt-fro.txt')
+        ]
+        print('Calling the TreeTagger (fro model).')
+        process = subprocess.run(args)
+        if process.returncode == 0:
+            taggerouts.append(opj(tmpdir, 'tt-fro.txt'))
+        # Stein OF model (in TreeTagger root dir)
+        args = [
+            opj(script_path, 'tree-tag.py'),
+            ttpath, '--parpath', opj(ttpath, 'stein-oldfrench.par'),
+            '--infiles', opj(tmpdir, 'basefile.txt'),
+            '--outfile', opj(tmpdir, 'tt-stein.txt')
+        ]
+        print('Calling the TreeTagger (Stein model).')
+        process = subprocess.run(args)
+        if process.returncode == 0:
+            taggerouts.append(opj(tmpdir, 'tt-stein.txt'))
+    # 3. Standardize pos tags
+    for i, taggerout in enumerate(taggerouts):
+        print('Converting part-of-speech tags from the tagger to UD.')
+        new_taggerout = taggerout[:-4] + '_normed.txt'
         try:
-            scripts.standardizepos.main(opj(tmpdir, 'rnn.txt'), opj(tmpdir, 'rnn_normed.txt'))
+            scripts.standardizepos.main(taggerout, new_taggerout)
         except scripts.standardizepos.MapNotFound:
             print("Warning: Couldn't standardize pos. Assuming already in UD.")
-            shutil.copy(opj(tmpdir, 'rnn.txt'), opj(tmpdir, 'rnn_normed.txt'))
+            shutil.copy(taggerout, new_taggerout)
+        taggerouts[i] = new_taggerout
+        
     if lexicons:
         # 4. Call lemma lookup on each lexicon file
         print('Lemmatizing using lexicon files and converting PoS tags to UD.')
@@ -130,7 +159,9 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inp
     if max_cols == 3 and inputanno == 'auto':
         kwargs['autoposlemma'].append(opj(tmpdir, 'infile_normed.txt'))
     if rnnpath:
-        kwargs['autoposlemma'].append(opj(tmpdir, 'rnn_normed.txt')) # must be list
+        kwargs['autoposlemma'].append(taggerouts.pop(0)) # must be list
+    if ttpath and taggerouts:
+        kwargs['autopos'] = taggerouts[:]
     if lexicons:
         kwargs['lookupposlemma'] = [opj(tmpdir, 'lookup_normed' + str(i) + '.txt') for i in range(len(lexicons))]
         kwargs['lexicons'] = [x for x in lexicons]
@@ -146,10 +177,11 @@ def main(tmpdir, infiles=[], rnnpath='', lexicons=[], outfile='', outdir='', inp
         print('Splitting and back-converting output to original format.')
         concatenater.split(opj(tmpdir, 'out-pp.txt'), outdir=tmpdir) # overwrites converted infile.
         for converter, converted_infile in zip(converters, converted_infiles):
-            outfile = outfile or opj(outdir, os.path.basename(converter.source_file)) # uses outfile if passed
             if converter:
+                outfile = opj(outdir, os.path.basename(converter.source_file))
                 converter.to_source(converted_infile, outfile)
             else:
+                outfile = outfile or opj(outdir, os.path.basename(converted_infile))
                 shutil.copy2(converted_infile, outfile)
     elif outfile:
         shutil.copy2(opj(tmpdir, 'out-pp.txt'), outfile)
@@ -166,10 +198,14 @@ if __name__ == '__main__':
         'Old French lemmatizer.'
     )
     parser.add_argument('infiles', nargs='+', help='Input text files.')
-    parser.add_argument('--rnnpath', help='Path to directory containing the RNN tagger.')
+    parser.add_argument('--rnnpath', type=str, help='Path to directory containing the RNN tagger.')
+    parser.add_argument('--ttpath', type=str, help=\
+        'Path to directory containing the TreeTagger. Directory should contain bin/tree-tagger, ' + \
+        'lib/old-french.par and/or stein-oldfrench.par.')
     parser.add_argument('--lexicons', nargs='*', help='Lexicon files (overrides supplied default lexicons)', 
         default=[
             opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval.tsv'),
+            opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval-corrections.tsv'),
             opj(script_path, 'lexicons', 'punct.tsv')
         ]
     )

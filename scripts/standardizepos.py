@@ -24,6 +24,9 @@ def get_map(filepos, mapsdir=MAPSDIR):
         if len(filepos - set(amap.keys())) < len(filepos) / 10:
             print('Using ' + mapspath)
             return amap
+        #else:
+        #    print(mapspath)
+        #    print(filepos - set(amap.keys()))
     return {}
     
 def parse_map(infile):

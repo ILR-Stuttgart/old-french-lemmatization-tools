@@ -120,8 +120,10 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
         for i, d in enumerate([{}, udpos_simplified, udpos_very_simple]):
             lemma_ixs = pos_match(d)
             # Case 3a. Exactly one lookup lemma has the correct POS tag.
+            # Must control for the case where ignore_numbers has created multiple
+            # identical lemmas.
             # PoS disambiguation has worked, use this lemma, score is 1
-            if len(lemma_ixs) == 1:
+            if len(lemma_ixs) == 1 or len(set([lookup_lemmas[x] for x in lemma_ixs])) == 1:
                 lemma = lookup_lemmas[lemma_ixs[0]]
                 # Score is 5 if there are autolemmas and it doesn't match one,
                 # otherwise 8 if i == 0 or 7 if i > 0

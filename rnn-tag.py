@@ -21,15 +21,15 @@ class Error(Exception):
 class InputDataError(Exception):
     pass
     
-def main(rnnpath, lang, infiles, outdir='', user_outfile='', gpu=0):
+def main(rnnpath, lang, infiles, outdir='', outfile='', gpu=0):
     #tmpdir='/home/tmr/tmp/rnn'
     #if True:
     with tempfile.TemporaryDirectory() as tmpdir:
         # First, concatenate input files
-        infile = opj(tmpdir, 'base.txt')
-        outfile = opj(tmpdir, 'out.txt')
+        infile_rnn = opj(tmpdir, 'base.txt')
+        outfile_rnn = opj(tmpdir, 'out.txt')
         concatenater = Concatenater()
-        concatenater.concatenate(infiles, infile)
+        concatenater.concatenate(infiles, infile_rnn)
         # Second, check that the file is s-tokenized.
         #has_empty_lines = check_empty_lines(infile)
         s_tokenized_infile = opj(tmpdir, 'in.txt')
@@ -39,7 +39,7 @@ def main(rnnpath, lang, infiles, outdir='', user_outfile='', gpu=0):
         #    shutil.copy2(infile, s_tokenized_infile)
         #else:
         # Standardize empty lines
-        empty_lines = tokenize_sentences(infile, s_tokenized_infile)
+        empty_lines = tokenize_sentences(infile_rnn, s_tokenized_infile)
         #print(empty_lines)
         # Next, call the RNN Tagger with HS's shell script
         if lang == 'old-french' and os.path.exists(opj('.', 'PyRNN', 'rnn-annotate.py')):
@@ -49,14 +49,14 @@ def main(rnnpath, lang, infiles, outdir='', user_outfile='', gpu=0):
         #if has_empty_lines: # Original file was s-tokenized.
         #    shutil.move(s_tokenized_outfile, outfile)
         #else:
-        remove_empty_lines(s_tokenized_outfile, outfile, empty_lines=empty_lines)
+        remove_empty_lines(s_tokenized_outfile, outfile_rnn, empty_lines=empty_lines)
         # Finally, deal with the concatenated files
         if outdir:
-            concatenater.split(opj(tmpdir, 'out.txt'), outdir=outdir)
-        elif user_outfile:
-            shutil.copy2(outfile, user_outfile)
+            concatenater.split(outfile_rnn, outdir=outdir)
+        elif outfile:
+            shutil.copy2(outfile_rnn, outfile)
         else: # Nowhere else to dump the output, print it to stdout.
-            with open(outfile, 'r', encoding='utf-8') as f:
+            with open(outfile_rnn, 'r', encoding='utf-8') as f:
                 for line in f:
                     print(line[:-1])
 
