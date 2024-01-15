@@ -165,6 +165,8 @@ def get_converter(source_file):
     if ext in ['.xml']:
         raise UnknownFileType('This type of file is not supported.')
         #return TEIConverter(source_file)
+    else:
+        raise UnknownFileType('This type of file is not supported.')
         
 def unpickle_converter(source_file):
     with open(source_file + '.convert', 'rb') as f:
