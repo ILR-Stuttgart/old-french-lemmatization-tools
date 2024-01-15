@@ -21,7 +21,7 @@ class Error(Exception):
 class InputDataError(Exception):
     pass
     
-def main(rnnpath, lang, infiles, outdir='', outfile='', gpu=0):
+def main(rnnpath, lang, infiles, outdir='', outfile=''):
     #tmpdir='/home/tmr/tmp/rnn'
     #if True:
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -42,10 +42,10 @@ def main(rnnpath, lang, infiles, outdir='', outfile='', gpu=0):
         empty_lines = tokenize_sentences(infile_rnn, s_tokenized_infile)
         #print(empty_lines)
         # Next, call the RNN Tagger with HS's shell script
-        if lang == 'old-french' and os.path.exists(opj('.', 'PyRNN', 'rnn-annotate.py')):
-            shell_script_standard(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
+        if lang == 'old-french' and os.path.exists(opj(rnnpath, 'PyRNN', 'rnn-annotate.py')):
+            shell_script_standard(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, tmpdir)
         else:
-            shell_script_of(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, gpu, tmpdir)
+            shell_script_of(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, tmpdir)
         #if has_empty_lines: # Original file was s-tokenized.
         #    shutil.move(s_tokenized_outfile, outfile)
         #else:
@@ -112,29 +112,29 @@ def remove_empty_lines(infile, outfile, empty_lines=[]):
                 if add >= 0: # if add >= 0, write the line
                     fout.write(line)
     
-def shell_script_standard(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
+def shell_script_standard(rnnpath, lang, infile, outfile, tmpdir='/home/tmr/tmp'):
     
     TAGGER = opj('.', 'PyRNN', 'rnn-annotate.py')
     RNNPAR = opj('.', 'lib', 'PyRNN', lang)
     LEMMATIZER = opj('.', 'PyNMT', 'nmt-translate.py')
     NMTPAR = opj('.', 'lib', 'PyNMT', lang)
     _shell_script(
-        rnnpath, lang, infile, outfile, gpu, tmpdir,
+        rnnpath, lang, infile, outfile, tmpdir,
         TAGGER, RNNPAR, LEMMATIZER, NMTPAR
     )
     
-def shell_script_of(rnnpath, lang, infile, outfile, gpu=0, tmpdir='/home/tmr/tmp'):
+def shell_script_of(rnnpath, lang, infile, outfile, tmpdir='/home/tmr/tmp'):
     TAGGER = opj('.', 'Python', 'rnn-annotate.py')
     RNNPAR = opj('.', 'lib', 'tagger')
     LEMMATIZER = opj('.', 'Python', 'nmt-translate.py')
     NMTPAR = opj('.', 'lib', 'lemmatizer')
     _shell_script(
-        rnnpath, lang, infile, outfile, gpu, tmpdir,
+        rnnpath, lang, infile, outfile, tmpdir,
         TAGGER, RNNPAR, LEMMATIZER, NMTPAR
     )
     
 def _shell_script(
-    rnnpath, lang, infile, outfile, gpu, tmpdir,
+    rnnpath, lang, infile, outfile, tmpdir,
     TAGGER, RNNPAR, LEMMATIZER, NMTPAR
 ):
     # Python reimplementation of Helmut Schmidt's shell script,
@@ -146,11 +146,18 @@ def _shell_script(
     l = [
         TAGGER, # TAGGER
         RNNPAR, # RNNPAR
-        infile
+        infile,
+        '--gpu', '1'
     ]
-    if gpu == -1: l.extend(['--gpu', '-1']) # Newer versions of tagger need gpu -1
+    #if gpu == -1: l.extend(['--gpu', '-1']) # Newer versions of tagger need gpu -1
     with open(opj(tmpdir, 'tmp.tagged'), 'w') as f:
-        subprocess.run(l, stdout=f)
+        print('With GPU')
+        process = subprocess.run(l, stdout=f)
+    if process.returncode > 1 or os.path.getsize(opj(tmpdir, 'tmp.tagged')) == 0:
+        with open(opj(tmpdir, 'tmp.tagged'), 'w') as f:
+            print('Without GPU')
+            l[-1] = '-1' # Try GPU -1
+            subprocess.run(l, stdout=f)
     # Step 2. Reformat using perl script
     l = [
         'perl', opj('.', 'scripts', 'reformat.pl'), # REFORMAT
@@ -162,13 +169,13 @@ def _shell_script(
     l = [
         LEMMATIZER, # LEMMATIZER
         '--print_source',
-        '--gpu', str(gpu), # GPU parameter
+        #'--gpu', '1', # GPU parameter
         NMTPAR, #NMTPAR
         opj(tmpdir, 'tmp.reformatted')
     ]
     #print(l)
     with open(opj(tmpdir, 'tmp.lemmas'), 'w') as f:
-        subprocess.run(l, stdout=f)
+        process = subprocess.run(l, stdout=f)
         
     # Step 4. Lemma lookup
     l = [
@@ -190,8 +197,6 @@ if __name__ == '__main__':
         'Wrapper to call the RNN Tagger independent of the shell scripts on ' + \
         'pre-tokenized text, with model selection'
         )
-    parser.add_argument('--gpu', type=int, default=-1,
-               help='selection of the GPU (default is GPU -1)')
     parser.add_argument('rnnpath', help='Path to directory containing the RNN tagger.')
     parser.add_argument('lang', help='Name of language.')
     parser.add_argument('--infiles', nargs='+', help='Input files, one token per line.')
@@ -200,5 +205,5 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     main(
         args.pop('rnnpath'), args.pop('lang'), args.pop('infiles'), 
-        args.pop('outdir'), args.pop('outfile'), args.pop('gpu')
+        args.pop('outdir'), args.pop('outfile')
     )

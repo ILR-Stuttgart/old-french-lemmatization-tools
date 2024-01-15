@@ -85,9 +85,13 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             rnnpath, 'old-french', '--infiles', opj(tmpdir, 'basefile.txt'),
             '--outfile', opj(tmpdir, 'rnn.txt')
         ]
-        print('Calling the RNN tagger.')
         subprocess.run(args)
         taggerouts.append(opj(tmpdir, 'rnn.txt'))
+    elif os.path.exists(opj(tmpdir, 'rnn.txt')):
+        print('Using RNN tags from ' + opj(tmpdir, 'rnn.txt'))
+        print("(Move this file or give --rnnpath to disable this.)")
+        taggerouts.append(opj(tmpdir, 'rnn.txt'))
+        rnnpath = 'yes'
     # 2b. Call the Tree Tagger
     if ttpath:
         # BFM fro model

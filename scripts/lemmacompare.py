@@ -68,6 +68,7 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
     # 0: autolemma which contradicts the lookup lemma
     # 1: unverifiable autolemma
     # 2: single lookup lemma, unverified by tagging
+    #       - autolemma better for function words; lookup for open classes.
     # 3: multiple lookup lemmas, pos disambiguation fails but one does match the autolemma(s)
     # 4: single lookup lemma, doesn't match the pos but does match the autolemma(s)
     # 5: multiple lookup lemmas, pos_disambiguated but doesn't match the autolemma
@@ -107,17 +108,29 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
     # Case 2b. There is a single, unambiguous lemma from the lookup but it doesn't
     # match the autolemma
     elif lookup_lemmas and len(lookup_lemmas) == 1 and autolemmas:
-        lemma = lookup_lemmas[0]
-        # If the pos tag doesn't match, either, score is 2. Else 6
-        if len(set(lookup_poss[0].split('|')) & set(poss)) == 0:
+        # If the poss doesn't match, use autolemma for closed classes,
+        # lookup lemma for open classes. Score = 2.
+        pos_set = set(lookup_poss[0].split('|')) & set(poss)
+        if len(pos_set) == 0:
+            # Check for an open class excluding adverbs
+            if set(poss) & set(['ADJ', 'PROPN', 'NOUN', 'VERB']):
+                # Use the lookup lemma
+                lemma = lookup_lemmas[0]
+            else:
+                # Use the autolemma
+                lemma = autolemmas[0]
             score = 2
         else:
+            # Pos tag matches, use the lookup_lemma, score is 6.
+            lemma = lookup_lemmas[0]
             score = 6
     # Cases 3 and 4. There are multiple lookup lemmas.
     elif lookup_lemmas:
         # We perform POS disambiguation using the standard tagset, then
         # the two simplified tagsets.
-        for i, d in enumerate([{}, udpos_simplified, udpos_very_simple]):
+        # Very simple tagset deactivated because the POS tagging is actually
+        # not all that bad.
+        for i, d in enumerate([{}, udpos_simplified]):
             lemma_ixs = pos_match(d)
             # Case 3a. Exactly one lookup lemma has the correct POS tag.
             # Must control for the case where ignore_numbers has created multiple
