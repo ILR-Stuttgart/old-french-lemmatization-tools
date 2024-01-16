@@ -83,7 +83,7 @@ class Normalizer():
         for char in s:
             if self.is_ascii and not char.isascii():
                 char = self.DIACRITIC_MAP.get(char, '_')
-            if not char.isalnum() and not is_pnc and not char in ["'", '’', '-'] and not self.pnc_in_tok:
+            if not char.isalnum() and not is_pnc and not char in ["'", '’', '-', '.'] and not self.pnc_in_tok:
                 char = ''
             if char == '-' and not is_pnc and not self.hyphen:
                 char = ''

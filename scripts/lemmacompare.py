@@ -280,6 +280,7 @@ def load_lexicons(lexicons, ignore_numbers=False):
                     x = line.split('\t')[0]
                 except IndexError:
                     continue
+                if not x: print(line)
                 if ignore_numbers and x[-1].isdigit():
                     x = x[:-1] # remove number
                 aset.add(x)

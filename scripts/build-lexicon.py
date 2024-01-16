@@ -2,6 +2,7 @@
 
 import argparse, csv, os, os.path, tempfile
 import convertfiles
+from lib.normalizers import Normalizer
 
 opj = os.path.join
 
@@ -12,8 +13,10 @@ def main(infiles, lexicon='out.tsv'):
             for line in f:
                 l = line.rstrip().split('\t')
                 if len(l) < 3: continue
+                if '|' in l[0]: continue
                 forms_d[l[0] + '||' + l[1]] = set(l[2].split('|'))
                 
+    normalizer = Normalizer(pnc_in_tok=False, uppercase=False) #ignore case in form
     with tempfile.TemporaryDirectory() as tmpdir:
         for fname in infiles:
             try:
@@ -25,11 +28,13 @@ def main(infiles, lexicon='out.tsv'):
                 for line in f:
                     l = line.rstrip().split('\t')
                     if len(l) < 3: continue
+                    if '|' in l[2] or not l[2] or l[2] == 'UNKNOWN' or not l[1]: continue
                     key = l[2] + '||' + l[1]
+                    form = normalizer.normalize_tok(l[0])
                     if key in forms_d:
-                        forms_d[key].add(l[0].lower()) #ignore case in form
+                        forms_d[key].add(form)
                     else:
-                        forms_d[key] = set([l[0].lower()]) #ignore case in form
+                        forms_d[key] = set([form]) 
                         
     with open(lexicon, 'w', encoding='utf-8') as f:
         for key, forms in forms_d.items():
