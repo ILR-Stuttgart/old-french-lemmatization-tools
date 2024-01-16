@@ -29,7 +29,7 @@ Make sure that it runs by typing
 ```$./cmd/rnn-tagger-old-french.sh```
 You may need to install PyTorch first:
 ```sudo apt install python3-torch```
-3. (Optional) Download and install Helmut Schmid's 
+3. (Optional) Download and install Helmut Schmidt's 
 [Tree Tagger](https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/).
 You will need the tagger and the Old French parameter files (trained on
 the BFM). You can also add Achim Stein's parameter files: download
@@ -45,6 +45,68 @@ the following to lemmatize the text:
 ```
 ./old-french-lemmatizer.py myfile1.txt myfile2.txt --rnnpath ~/RNNTagger
 ```
+
+## What do the numbers mean?
+
+The fourth column of the lemmatizer's output file gives a "reliability"
+score for the lemmatization:
+
++ 10: unambiguous gold lemma supplied in the input
++ 7-9: lemma taken from a lexicon. If multiple lemmas were found,
+        they were successfully disambiguated by the part-of-speech tag.
+        The result matches the RNN tagger's autolemma.
++ 3-6: lemma taken from a lexicon but either it doesn't match the RNN
+        tagger's lemma, or there were multiple lemmas possible which
+        couldn't be disambiguated by the part-of-speech tag.
++ 2: lemma taken from a lexicon but it doesn't match the RNN tagger's
+        output in any respect, or the RNN tagger was not run.
++ 1: \[not used\]
++ 0: lemma from the RNN tagger but this form of the lemma is not found in the lexicon.
++ -1: multiple lemmas from the lexicon, impossible to disambiguate them using
+        the part-of-speech tag and the automatic lemma.
++ -10: lemma from the RNN tagger but the **lemma** is not attested in the lexicon.
+        There is a good chance that this lemma has been invented by the RNN tagger!
+        
+Tests on unknown Old French data show that scores of 7 and above have
+98-99% accuracy. Scores of 2 and 5, where the lexicon and the RNN
+Tagger offer different lemmas, are poor (50%--60%), while lemmas with
+a score of -10 are terrible (20%). Everything else is 80-90% accurate.
+
+## How do I extend the lexicon?
+
+The tagger's default lexicon is found in the [lexicons](./lexicons)
+subfolder. 
+
+If you want to manually select the lexicon files the lemmatizer should
+use, use the `--lexicons` argument, e.g.
+```
+./old-french-lemmatizer.py myfile1.txt myfile2.txt --rnnpath ~/RNNTagger
+--lexicons ./lexicons/old-french/lgerm-medieval.tsv myextraforms.tsv
+```
+
+The original lexicon is based on the file `LGeRM-LexiqueMorphologique-MF-2.0.0.xml`
+converted using the [lgerm-xml2csv.py](../../scripts/lgerm-xml2csv.py)
+script. The [lgerm-medieval.tsv](lexicons/old-french/lgerm-medieval) file
+is was downloaded from [http://www.atilf.fr/LGeRM/](http://www.atilf.fr/LGeRM/)
+on 22 December 2023 and is made available under a CREATIVE COMMONS LICENSE CC-BY-NC 2.0.
+
+You can also build a lexicon file from your own gold corpus using the
+`build-lexicon.py` script:
+```
+./build-lexicon.py my-gold-file-1.txt my-gold-file-2.txt
+```
+If you supply the `--lexicon` option on the command line, the lexicon
+will be saved to this file. If the file already exists, the existing
+lexicon will be extended:
+```
+./build-lexicon.py my-gold-file-1.txt my-gold-file-2.txt 
+--lexicon my-existing-lexicon.tsv
+```
+If you extend an existing lexicon, you must ensure that the gold corpus
+and the lexicon use the **same** part of speech tags, otherwise
+the lemmatizer won't recognize the tagset and won't be able to convert
+them to UD. Do not extend the default lexicon.
+
 
 ## Usage (advanced)
 
@@ -150,64 +212,3 @@ option to the script:
 ```
 Otherwise, they are stored in a temporary directory which is deleted
 after lemmatization is complete.
-
-## What do the numbers mean?
-
-The fourth column of the lemmatizer's output file gives a "reliability"
-score for the lemmatization:
-
-+ 10: unambiguous gold lemma supplied in the input
-+ 7-9: lemma taken from a lexicon. If multiple lemmas were found,
-        they were successfully disambiguated by the part-of-speech tag.
-        The result matches the RNN tagger's autolemma.
-+ 3-6: lemma taken from a lexicon but either it doesn't match the RNN
-        tagger's lemma, or there were multiple lemmas possible which
-        couldn't be disambiguated by the part-of-speech tag.
-+ 2: lemma taken from a lexicon but it doesn't match the RNN tagger's
-        output in any respect, or the RNN tagger was not run.
-+ 1: \[not used\]
-+ 0: lemma from the RNN tagger but this form of the lemma is not found in the lexicon.
-+ -1: multiple lemmas from the lexicon, impossible to disambiguate them using
-        the part-of-speech tag and the automatic lemma.
-+ -10: lemma from the RNN tagger but the **lemma** is not attested in the lexicon.
-        There is a good chance that this lemma has been invented by the RNN tagger!
-        
-Tests on unknown Old French data show that scores of 7 and above have
-98-99% accuracy. Scores of 2 and 5, where the lexicon and the RNN
-Tagger offer different lemmas, are poor (50%--60%), while lemmas with
-a score of -10 are terrible (20%). Everything else is 80-90% accurate.
-
-## How do I extend the lexicon?
-
-The tagger's default lexicon is found in the [lexicons](./lexicons)
-subfolder. 
-
-If you want to manually select the lexicon files the lemmatizer should
-use, use the `--lexicons` argument, e.g.
-```
-./old-french-lemmatizer.py myfile1.txt myfile2.txt --rnnpath ~/RNNTagger
---lexicons ./lexicons/old-french/lgerm-medieval.tsv myextraforms.tsv
-```
-
-The original lexicon is based on the file `LGeRM-LexiqueMorphologique-MF-2.0.0.xml`
-converted using the [lgerm-xml2csv.py](../../scripts/lgerm-xml2csv.py)
-script. The [lgerm-medieval.tsv](lexicons/old-french/lgerm-medieval) file
-is was downloaded from [http://www.atilf.fr/LGeRM/](http://www.atilf.fr/LGeRM/)
-on 22 December 2023 and is made available under a CREATIVE COMMONS LICENSE CC-BY-NC 2.0.
-
-You can also build a lexicon file from your own gold corpus using the
-`build-lexicon.py` script:
-```
-./build-lexicon.py my-gold-file-1.txt my-gold-file-2.txt
-```
-If you supply the `--lexicon` option on the command line, the lexicon
-will be saved to this file. If the file already exists, the existing
-lexicon will be extended:
-```
-./build-lexicon.py my-gold-file-1.txt my-gold-file-2.txt 
---lexicon my-existing-lexicon.tsv
-```
-If you extend an existing lexicon, you must ensure that the gold corpus
-and the lexicon use the **same** part of speech tags, otherwise
-the lemmatizer won't recognize the tagset and won't be able to convert
-them to UD. Do not extend the default lexicon.
