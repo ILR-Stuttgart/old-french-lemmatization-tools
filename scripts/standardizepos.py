@@ -49,7 +49,8 @@ def main(infile, outfile='out.txt'):
             except IndexError:
                 pass
     # Next, get the map
-    themap = get_map(filepos)
+    mapsdir = opj(os.path.dirname(__file__), '..', MAPSDIR)
+    themap = get_map(filepos, mapsdir)
     if not themap:
         raise MapNotFound('No map found for this tagset.')
     # Finally, translate the tags and write the outfile
