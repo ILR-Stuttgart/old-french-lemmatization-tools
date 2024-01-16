@@ -1,6 +1,6 @@
 # Old French Lemmatizer
 
-© Tom Rainsford, Institut für Linguistik/Romanistik, University of Stuttgart, January 2023
+© Tom Rainsford, Institut für Linguistik/Romanistik, University of Stuttgart, January 2024
 
 ## What it does
 
