@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import argparse, csv, os, os.path, tempfile
-import convertfiles
+import scripts.convertfiles
 from lib.normalizers import Normalizer
 
 opj = os.path.join
@@ -20,8 +20,8 @@ def main(infiles, lexicon='out.tsv'):
     with tempfile.TemporaryDirectory() as tmpdir:
         for fname in infiles:
             try:
-                convertfiles.convert_from_source(fname, opj(tmpdir, 'tmp.txt'))
-            except convertfiles.UnknownFileType:
+                scripts.convertfiles.convert_from_source(fname, opj(tmpdir, 'tmp.txt'))
+            except scripts.convertfiles.UnknownFileType:
                 print(fname)
                 raise
             with open(opj(tmpdir, 'tmp.txt'), 'r', encoding='utf-8') as f:

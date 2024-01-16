@@ -4,7 +4,7 @@
 
 ## What it does
 
-The Old French lemmatizer lemmatizes **tokenized** Old French texts.
+The Old French lemmatizer lemmatizes tokenized Old French texts.
 
 ## Setup
 
@@ -15,12 +15,20 @@ run on any platform
 ```
 git clone https://github.com/ILR-Stuttgart/lgerm-disambiguator.git
 ```
-2. (Optional but recommended) Download and unzip Helmut Schmidt's 
+2. (Optional but highly recommended) Download and unzip Helmut Schmidt's 
 [RNN tagger](https://www.cis.uni-muenchen.de/~schmid/tools/RNNTagger/).
 Make sure that it runs by typing
 ```$./cmd/rnn-tagger-old-french.sh```
 You may need to install PyTorch first:
 ```sudo apt install python3-torch```
+Currently, the RNN Tagger only runs on Linux.
+3. (Optional) Download and install Helmut Schmid's 
+[Tree Tagger](https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/).
+You will need the tagger and the Old French parameter files (trained on
+the BFM). You can also add Achim Stein's parameter files: download
+them from [his research website](https://sites.google.com/site/achimstein/research/resources)
+and unzip the `stein-oldfrench.par.zip` file into the Tree Tagger
+directory.
 
 ## Usage (basic)
 
@@ -84,6 +92,7 @@ following tagsets:
 + FRANTEXT
 + Cattex (BFM)
 + Penn Treebank
++ Achim Stein's Tree Tagger tagset (trained on the NCA)
 
 If you need to add another tagset, take a look at the files in the
 [maps](./maps) subdirectory and add a further .tsv file mapping your
@@ -97,9 +106,7 @@ converts to form TAB pos TAB lemma format before processing:
 + .csv: A UTF-8 encoded comma-separated csv file with a header and a
         **word** column. **pos** and **lemma** will be read from 
         appropriately named columns.
-+ .conllu: A conllu file (not yet supported)
-+ .psd: A Penn-format file (not yet supported)
-+ .xml: A TEI P5 conforming .xml file (not yet supported)
++ .conllu: A CONLL-U file.
 
 If you set the `--outdir` parameter, the lemmatizer will convert the
 output back into the source format.
@@ -124,6 +131,11 @@ score for the lemmatization:
         the part-of-speech tag and the automatic lemma.
 + -10: lemma from the RNN tagger but the **lemma** is not attested in the lexicon.
         There is a good chance that this lemma has been invented by the RNN tagger!
+        
+Tests on unknown Old French data show that scores of 7 and above have
+98-99% accuracy. Scores of 2 and 5, where the lexicon and the RNN
+Tagger offer different lemmas, are poor (50%--60%), while lemmas with
+a score of -10 are terrible (20%). Everything else is 80-90% accurate.
 
 ## How do I extend the lexicon?
 
@@ -143,3 +155,19 @@ script. The [lgerm-medieval.tsv](lexicons/old-french/lgerm-medieval) file
 is was downloaded from [http://www.atilf.fr/LGeRM/](http://www.atilf.fr/LGeRM/)
 on 22 December 2023 and is made available under a CREATIVE COMMONS LICENSE CC-BY-NC 2.0.
 
+You can also build a lexicon file from your own gold corpus using the
+`build-lexicon.py` script:
+```
+./build-lexicon.py my-gold-file-1.txt my-gold-file-2.txt
+```
+If you supply the `--lexicon` option on the command line, the lexicon
+will be saved to this file. If the file already exists, the existing
+lexicon will be extended:
+```
+./build-lexicon.py my-gold-file-1.txt my-gold-file-2.txt 
+--lexicon my-existing-lexicon.tsv
+```
+If you extend an existing lexicon, you must ensure that the gold corpus
+and the lexicon use the **same** part of speech tags, otherwise
+the lemmatizer won't recognize the tagset and won't be able to convert
+them to UD. Do not extend the default lexicon.
