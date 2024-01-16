@@ -5,6 +5,8 @@
 ## What it does
 
 The Old French lemmatizer lemmatizes tokenized Old French texts.
+It uses a combination of lexical lookup and the output of the 
+[RNN tagger](https://www.cis.uni-muenchen.de/~schmid/tools/RNNTagger/).
 
 + [Setup](#setup)
 + [Usage (basic)](#usage-basic)
