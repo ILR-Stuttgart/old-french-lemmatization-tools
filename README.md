@@ -16,8 +16,8 @@ It uses a combination of lexical lookup and the output of the
 
 ## Setup
 
-The instructions below are for Ubuntu users although the script will
-run on any platform
+The instructions below are for Ubuntu users. The script should run
+on other platforms but has not been tested.
 
 1. Clone this git repository to your computer.
 ```
@@ -29,7 +29,6 @@ Make sure that it runs by typing
 ```$./cmd/rnn-tagger-old-french.sh```
 You may need to install PyTorch first:
 ```sudo apt install python3-torch```
-Currently, the RNN Tagger only runs on Linux.
 3. (Optional) Download and install Helmut Schmid's 
 [Tree Tagger](https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/).
 You will need the tagger and the Old French parameter files (trained on
