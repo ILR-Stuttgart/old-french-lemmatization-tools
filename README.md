@@ -6,6 +6,12 @@
 
 The Old French lemmatizer lemmatizes tokenized Old French texts.
 
++ [Setup](#setup)
++ [Usage (basic)](#usage-basic)
++ [What do the numbers mean?](#what-do-the-numbers-mean)
++ [How do I extend the lexicon?](#how-do-i-extend-the-lexicon)
++ [Usage (advanced)](#usage-advanced)
+
 ## Setup
 
 The instructions below are for Ubuntu users although the script will
@@ -33,8 +39,8 @@ directory.
 ## Usage (basic)
 
 Assuming that `myfile1.txt` and `myfile2.txt` are one-token-per-line
-UTF-8 text files and that the RNN Tagger is installed in `~/RNNTagger`,
-type the following to lemmatize the text:
+UTF-8 text files, the RNN Tagger is installed in `~/RNNTagger`, type
+the following to lemmatize the text:
 ```
 ./old-french-lemmatizer.py myfile1.txt myfile2.txt --rnnpath ~/RNNTagger
 ```
@@ -98,6 +104,26 @@ If you need to add another tagset, take a look at the files in the
 [maps](./maps) subdirectory and add a further .tsv file mapping your
 tagset onto the UD tags.
 
+### Using the Tree Tagger
+
+The RNN Tagger provides very good automatic tags and lemmas but it
+is very resource-intensive.
+
+A quicker but less robust alternative
+is just to use lemmas looked up from the lexicon with part-of-speech
+disambiguation based on tags supplied by the TreeTagger. To do this,
+provide `--ttpath` instead of `--rnnpath`:
+```
+./old-french-lemmatizer.py myfile1.txt myfile2.txt --ttpath ~/TreeTagger
+```
+
+Additionally, you can run *both* taggers on the data to improve the
+reliability of the POS tagging:
+```
+./old-french-lemmatizer.py myfile1.txt myfile2.txt --ttpath ~/TreeTagger
+--rnnpath ~/RNNTagger
+```
+
 ### Other supported file types
 
 The lemmatizer supports a range of file types which it automatically
@@ -110,6 +136,19 @@ converts to form TAB pos TAB lemma format before processing:
 
 If you set the `--outdir` parameter, the lemmatizer will convert the
 output back into the source format.
+
+### Viewing the temporary files
+
+The lemmatizer creates a large number of temporary files containing the
+raw output from the taggers and the results of the lexical lookup.
+If these are useful to you, you can save them by passing the `--tmpdir`
+option to the script:
+```
+./old-french-lemmatizer.py myfile1.txt myfile2.txt --rnnpath ~/RNNTagger
+--tmpdir ~/tmp
+```
+Otherwise, they are stored in a temporary directory which is deleted
+after lemmatization is complete.
 
 ## What do the numbers mean?
 
