@@ -21,7 +21,7 @@ on other platforms but has not been tested.
 
 1. Clone this git repository to your computer.
 ```
-git clone https://github.com/ILR-Stuttgart/lgerm-disambiguator.git
+git clone https://github.com/ILR-Stuttgart/old-french-lemmatization-tools.git
 ```
 2. (Optional but highly recommended) Download and unzip Helmut Schmidt's 
 [RNN tagger](https://www.cis.uni-muenchen.de/~schmid/tools/RNNTagger/).
