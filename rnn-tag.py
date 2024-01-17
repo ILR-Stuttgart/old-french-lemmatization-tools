@@ -42,10 +42,10 @@ def main(rnnpath, lang, infiles, outdir='', outfile=''):
         empty_lines = tokenize_sentences(infile_rnn, s_tokenized_infile)
         #print(empty_lines)
         # Next, call the RNN Tagger with HS's shell script
-        if lang == 'old-french' and os.path.exists(opj(rnnpath, 'PyRNN', 'rnn-annotate.py')):
-            shell_script_standard(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, tmpdir)
-        else:
+        if lang == 'old-french' and os.path.exists(opj(rnnpath, 'Python', 'rnn-annotate.py')):
             shell_script_of(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, tmpdir)
+        else:
+            shell_script_standard(rnnpath, lang, s_tokenized_infile, s_tokenized_outfile, tmpdir)
         #if has_empty_lines: # Original file was s-tokenized.
         #    shutil.move(s_tokenized_outfile, outfile)
         #else:
