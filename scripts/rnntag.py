@@ -10,7 +10,7 @@
 # + Designed for RNNTagger 1.4.4.                                     #
 #######################################################################
 
-import argparse, os, os.path, shutil, subprocess, tempfile
+import argparse, os, os.path, shutil, subprocess, tempfile, sys
 from lib.concat import Concatenater
 
 opj = os.path.join
@@ -144,19 +144,21 @@ def _shell_script(
     
     # Step 1. Run the POS tagger
     l = [
+        sys.executable, # gives the venv python executable
         TAGGER, # TAGGER
         RNNPAR, # RNNPAR
         infile,
-        '--gpu', '1'
+        #'--gpu', '-1'
     ]
     #if gpu == -1: l.extend(['--gpu', '-1']) # Newer versions of tagger need gpu -1
     with open(opj(tmpdir, 'tmp.tagged'), 'w') as f:
-        print('With GPU')
+        #print('With GPU')
+        #print(l)
         process = subprocess.run(l, stdout=f)
     if process.returncode > 1 or os.path.getsize(opj(tmpdir, 'tmp.tagged')) == 0:
         with open(opj(tmpdir, 'tmp.tagged'), 'w') as f:
-            print('Without GPU')
-            l[-1] = '-1' # Try GPU -1
+            print('Alright, without the GPU then...')
+            l.extend(['--gpu', '-1']) #Try GPU -1
             subprocess.run(l, stdout=f)
     # Step 2. Reformat using perl script
     l = [
@@ -167,13 +169,14 @@ def _shell_script(
         subprocess.run(l, stdout=f)
     # Step 3. Run the lemmatizer
     l = [
+        sys.executable, # gives the venv python executable
         LEMMATIZER, # LEMMATIZER
         '--print_source',
-        #'--gpu', '1', # GPU parameter
         NMTPAR, #NMTPAR
-        opj(tmpdir, 'tmp.reformatted')
+        opj(tmpdir, 'tmp.reformatted'),
+        #'--gpu', '-1'
     ]
-    #print(l)
+    print(l)
     with open(opj(tmpdir, 'tmp.lemmas'), 'w') as f:
         process = subprocess.run(l, stdout=f)
         

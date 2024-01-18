@@ -24,6 +24,7 @@ import scripts.ofrpostprocess
 import scripts.standardizepos
 import scripts.lemmacompare
 import scripts.convertfiles
+import scripts.rnntag
 
 opj = os.path.join
 
@@ -79,13 +80,9 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
     taggerouts = []
     # 2. Call RNN tagger
-    if rnnpath:
-        args = [
-            opj(script_path, 'rnn-tag.py'),
-            rnnpath, 'old-french', '--infiles', opj(tmpdir, 'basefile.txt'),
-            '--outfile', opj(tmpdir, 'rnn.txt')
-        ]
-        subprocess.run(args)
+    if rnnpath: # Inherit venv; call script
+        scripts.rnntag.main(rnnpath, 'old-french', [opj(tmpdir, 'basefile.txt')],
+            outfile=opj(tmpdir, 'rnn.txt'))
         taggerouts.append(opj(tmpdir, 'rnn.txt'))
     elif os.path.exists(opj(tmpdir, 'rnn.txt')):
         print('Using RNN tags from ' + opj(tmpdir, 'rnn.txt'))
