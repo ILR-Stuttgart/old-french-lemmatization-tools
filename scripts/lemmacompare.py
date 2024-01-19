@@ -161,7 +161,7 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
                     lemma = '|'.join(list(aset))
                     score = -1
                 # Case 3d. More than one lookup lemma but nothing matches the autolemma
-                # Return the AUTOLEMMA, score 0 (unverified autolemma)
+                # Return the FIRST AUTOLEMMA, score 0 (unverified autolemma)
                 else:
                     # Always use list - set in case identical lemmas with the same
                     # POS.
@@ -208,7 +208,7 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
         score = -2
     return lemma, score
 
-def disambiguate_autoposlemma(autoposlemmas, outfile='out.txt', ignore_numbers=False):
+def disambiguate_autoposlemma(autoposlemmas, posfile, outfile='out.txt', ignore_numbers=False):
     # Open the files
     def get_pos_lemma(line):
         l = line.rstrip().split('\t')
@@ -217,18 +217,28 @@ def disambiguate_autoposlemma(autoposlemmas, outfile='out.txt', ignore_numbers=F
         return ('', '')
         
     autoposlemma_fs = [open(x, 'r', encoding='utf-8') for x in autoposlemmas]
+    pos_f = open(posfile, 'r', encoding='utf-8')
     with open(outfile, 'w', encoding='utf-8') as fout:
         for line in autoposlemma_fs[0]:
             form = line.rstrip().split('\t')[0]
             lines = [line]
             lines += [f.readline() for f in autoposlemma_fs[1:]]
-            autoposlemmas = [get_pos_lemma(x) for x in lines]
-            lemma = vote([x[1] for x in autoposlemmas], ignore_numbers=ignore_numbers)
-            for autopos, autolemma in autoposlemmas:
-                if lemma == autolemma:
-                    pos = autopos
+            pos_line = pos_f.readline()
             try:
-                fout.write(form + '\t' + pos + '\t' + lemma + '\n')
+                pos = pos_line.rstrip().split('\t')[1]
+            except IndexError:
+                pos = ''
+            # Make a list of (autopos, autolemma) tuples
+            autoposlemmas = [get_pos_lemma(x) for x in lines]
+            #lemma = vote([x[1] for x in autoposlemmas], ignore_numbers=ignore_numbers)
+            autolemmas = []
+            for autopos, autolemma in autoposlemmas:
+                # Use pos disambiguation for multiple autolemmas
+                # but keep them all.
+                if autopos == pos or pos == '':
+                    autolemmas.append(autolemma)
+            try:
+                fout.write(form + '\t' + pos + '\t' + '|'.join(autolemmas) + '\n')
             except:
                 print(form)
                 print(line)
@@ -237,6 +247,7 @@ def disambiguate_autoposlemma(autoposlemmas, outfile='out.txt', ignore_numbers=F
                 raise
             
     for f in autoposlemma_fs: f.close()
+    pos_f.close()
 
 def disambiguate_pos(autoposs, goldposs=[], outfile='out.txt'):
     def get_pos(line):
@@ -322,7 +333,7 @@ def main(
     # lemma file
     if autoposlemma:
         autolemmafile = opj(tmpdir, 'autoposlemma.txt')
-        disambiguate_autoposlemma(autoposlemma, outfile=autolemmafile, ignore_numbers=ignore_numbers)
+        disambiguate_autoposlemma(autoposlemma, posfile, outfile=autolemmafile, ignore_numbers=ignore_numbers)
     else:
         autolemmafile = ''
         

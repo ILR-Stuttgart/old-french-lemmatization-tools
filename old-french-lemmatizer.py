@@ -80,15 +80,17 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
     taggerouts = []
     # 2. Call RNN tagger
-    if rnnpath: # Inherit venv; call script
-        scripts.rnntag.main(rnnpath, 'old-french', [opj(tmpdir, 'basefile.txt')],
-            outfile=opj(tmpdir, 'rnn.txt'))
-        taggerouts.append(opj(tmpdir, 'rnn.txt'))
-    elif os.path.exists(opj(tmpdir, 'rnn.txt')):
-        print('Using RNN tags from ' + opj(tmpdir, 'rnn.txt'))
-        print("(Move this file or give --rnnpath to disable this.)")
-        taggerouts.append(opj(tmpdir, 'rnn.txt'))
-        rnnpath = 'yes'
+    for lang, fname in [('old-french', 'rnn_of.txt'), ('middle-french', 'rnn_mf.txt')]:
+    # Updated for RNN Tagger v. 1.4.4
+        if rnnpath: # Inherit venv; call script
+            scripts.rnntag.main(rnnpath, lang, [opj(tmpdir, 'basefile.txt')],
+                outfile=opj(tmpdir, fname))
+            taggerouts.append(opj(tmpdir, fname))
+        elif os.path.exists(opj(tmpdir, fname)):
+            print('Using RNN tags from ' + opj(tmpdir, fname))
+            print("(Move this file or give --rnnpath to disable this.)")
+            taggerouts.append(opj(tmpdir, fname))
+            rnnpath = 'yes'
     # 2b. Call the Tree Tagger
     if ttpath:
         # BFM fro model
