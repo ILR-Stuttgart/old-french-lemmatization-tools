@@ -176,7 +176,7 @@ def _shell_script(
         opj(tmpdir, 'tmp.reformatted'),
         #'--gpu', '-1'
     ]
-    print(l)
+    #print(l)
     with open(opj(tmpdir, 'tmp.lemmas'), 'w') as f:
         process = subprocess.run(l, stdout=f)
         
