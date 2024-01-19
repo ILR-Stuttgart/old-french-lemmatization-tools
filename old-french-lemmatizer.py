@@ -80,7 +80,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
     taggerouts = []
     # 2. Call RNN tagger
-    for lang, fname in [('old-french', 'rnn_of.txt'), ('middle-french', 'rnn_mf.txt')]:
+    for lang, fname in [('old-french', 'rnn_of.txt'), ('french', 'rnn_fre.txt')]:
     # Updated for RNN Tagger v. 1.4.4
         if rnnpath: # Inherit venv; call script
             scripts.rnntag.main(rnnpath, lang, [opj(tmpdir, 'basefile.txt')],
@@ -90,7 +90,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             print('Using RNN tags from ' + opj(tmpdir, fname))
             print("(Move this file or give --rnnpath to disable this.)")
             taggerouts.append(opj(tmpdir, fname))
-            rnnpath = 'yes'
+            if lang == 'middle-french': rnnpath = 'yes'
     # 2b. Call the Tree Tagger
     if ttpath:
         # BFM fro model
@@ -115,6 +115,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
         if process.returncode == 0:
             taggerouts.append(opj(tmpdir, 'tt-stein.txt'))
     # 3. Standardize pos tags
+    print(taggerouts)
     for i, taggerout in enumerate(taggerouts):
         print('Converting part-of-speech tags from the tagger to UD.')
         new_taggerout = taggerout[:-4] + '_normed.txt'
@@ -162,13 +163,15 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     if max_cols == 3 and inputanno == 'auto':
         kwargs['autoposlemma'].append(opj(tmpdir, 'infile_normed.txt'))
     if rnnpath:
-        kwargs['autoposlemma'].append(taggerouts.pop(0)) # must be list
+        kwargs['autoposlemma'].append(taggerouts.pop(0)) # of model
+        kwargs['autoposlemma'].append(taggerouts.pop(0)) # mf model
     if ttpath and taggerouts:
         kwargs['autopos'] = taggerouts[:]
     if lexicons:
         kwargs['lookupposlemma'] = [opj(tmpdir, 'lookup_normed' + str(i) + '.txt') for i in range(len(lexicons))]
         kwargs['lexicons'] = [x for x in lexicons]
     print('Comparing results and scoring final lemmatization.')
+    print(kwargs)
     scripts.lemmacompare.main(**kwargs)
     # 7. Post process
     print('Running post-processor.')

@@ -237,6 +237,11 @@ def disambiguate_autoposlemma(autoposlemmas, posfile, outfile='out.txt', ignore_
                 # but keep them all.
                 if autopos == pos or pos == '':
                     autolemmas.append(autolemma)
+                    # This may lead to duplicate autolemmas, but this
+                    # is not an issue. The number of autolemmas never
+                    # counts for anything.
+                    # But it does count that the best model is passed
+                    # first.
             try:
                 fout.write(form + '\t' + pos + '\t' + '|'.join(autolemmas) + '\n')
             except:
