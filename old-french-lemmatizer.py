@@ -95,6 +95,8 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
         taggerouts.append(opj(tmpdir, fname))
         rnnpath = 'yes'
     # 2b. Call the Tree Tagger
+    if rnnpath and ttpath:
+        print('WARNING: Tests suggest that better results are achieved with the RNN Tagger alone.')
     if ttpath:
         # BFM fro model
         args = [
