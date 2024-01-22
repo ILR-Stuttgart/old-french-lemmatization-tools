@@ -95,6 +95,10 @@ class CsvConverter(Converter):
                 
 class ConlluConverter(Converter):
     
+    def __init__(self, source_file, source_encoding='utf-8'):
+        Converter.__init__(self, source_file, source_encoding)
+        self.xpos = False # If True, uses column 5 not column 4
+    
     def from_source(self, outfile):
         with open(self.source_file, newline='', encoding=self.source_encoding) as fin:
             with open(outfile, 'w', encoding='utf-8') as fout:
@@ -105,7 +109,7 @@ class ConlluConverter(Converter):
                         if len(fields) == 10: # line contains data
                             fout.write(fields[1]) # write word
                             if fields[3] not in ['_', ''] and fields[4] not in ['_', '']:
-                                if fields[3] not in ['_', '']: #upos tag
+                                if fields[3] not in ['_', ''] and not self.xpos: #upos tag
                                     fout.write('\t' + fields[3])
                                 else: # xpos tag
                                     fout.write('\t' + fields[4])
@@ -173,8 +177,9 @@ def unpickle_converter(source_file):
         converter = pickle.load(f)
     return converter
 
-def convert_from_source(infile, outfile='out.txt'):
+def convert_from_source(infile, outfile='out.txt', conllu_xpos=False):
     converter = get_converter(infile)
+    if conllu_xpos: converter.xpos = True # won't matter if not a conllu file
     converter.from_source(outfile)
     return converter
     

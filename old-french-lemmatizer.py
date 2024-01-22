@@ -35,6 +35,7 @@ def normalize_infile(infile, outfile):
     # except for Old French numbers
     # Return max number of columns.
     normalizer = Normalizer(pnc_in_tok=False)
+    #normalizer.pnc_in_tok_except.extend(['@', '#']) # Used in MCVF
     with open(infile, 'r', encoding='utf-8') as fin:
         with open(outfile, 'w', encoding='utf-8') as fout:
             l = []
@@ -217,7 +218,8 @@ if __name__ == '__main__':
         default=[
             opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval.tsv'),
             opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval-corrections.tsv'),
-            opj(script_path, 'lexicons', 'punct.tsv')
+            opj(script_path, 'lexicons', 'old-french', 'bfmgoldlem2022.tsv')
+            #opj(script_path, 'lexicons', 'punct.tsv')
         ]
     )
     parser.add_argument('--outdir', help='Output directory.', type=str, default='')

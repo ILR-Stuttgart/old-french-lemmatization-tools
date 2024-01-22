@@ -67,13 +67,13 @@ class Normalizer():
         'Ÿ': 'Y'
     }
     
-    def __init__(self, apostrophe=True, uppercase=True, 
-        hyphen=True, is_ascii=False, pnc_in_tok=True):
-        self.apostrophe = apostrophe
-        self.hyphen = hyphen
+    def __init__(self, uppercase=True, 
+        is_ascii=False, pnc_in_tok=True,
+        pnc_in_tok_except=["'", '’', '-', '.']):
         self.uppercase = uppercase
         self.is_ascii = is_ascii
         self.pnc_in_tok = pnc_in_tok
+        self.pnc_in_tok_except = pnc_in_tok_except
         
     def normalize_tok(self, s):
         new_s = ''
@@ -83,11 +83,7 @@ class Normalizer():
         for char in s:
             if self.is_ascii and not char.isascii():
                 char = self.DIACRITIC_MAP.get(char, '_')
-            if not char.isalnum() and not is_pnc and not char in ["'", '’', '-', '.'] and not self.pnc_in_tok:
-                char = ''
-            if char == '-' and not is_pnc and not self.hyphen:
-                char = ''
-            if char in ["'", '’'] and not is_pnc and not self.apostrophe:
+            if not char.isalnum() and not is_pnc and not char in self.pnc_in_tok_except and not self.pnc_in_tok:
                 char = ''
             if not self.uppercase: char = char.lower()
             new_s += char

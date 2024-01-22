@@ -20,7 +20,7 @@ def main(infiles, lexicon='out.tsv'):
     with tempfile.TemporaryDirectory() as tmpdir:
         for fname in infiles:
             try:
-                scripts.convertfiles.convert_from_source(fname, opj(tmpdir, 'tmp.txt'))
+                scripts.convertfiles.convert_from_source(fname, opj(tmpdir, 'tmp.txt'), conllu_xpos=True)
             except scripts.convertfiles.UnknownFileType:
                 print(fname)
                 raise

@@ -38,6 +38,11 @@ correct_lemmas = [
     ('.*', 'PRON', 'cui', 'qui'),
     # get rid of gens
     ('.*', 'NOUN', 'gens', 'gent'),
+    # MCVF: P.D from split tags
+    ('es', 'DET', '.*', 'le'),
+    ('e', 'ADP', '.*', 'en'),
+    # MCVF: de DET > de
+    ("[Dd][e']?", 'DET', '.*', 'de'),
     # correct ne.il > ne.le and si.il > si.le
     ('.*', 'ADV.PRON', 'ne.il', 'ne.le'),
     ('.*', 'ADV.PRON', 'si.il', 'si.le'),
@@ -46,7 +51,8 @@ correct_lemmas = [
     ('[Vv]us', 'PRON', 'vu', 'vous'), # Anglo-French vu
     ('[Ss]ire', 'NOUN', 'seigneur', 'sire'),
     ('[Mm]ort', 'NOUN', 'mourir', 'mort'), # pos disambiguation fails here because of mors NOUN
-    
+    # saint can be PROPN in gold annotation; confusing sometimes
+    ('.*', 'PROPN', '(.*\|)?saint(\|.*)', 'saint')
 ]
 
 def main(infile, outfile):
@@ -60,7 +66,7 @@ def main(infile, outfile):
                     fout.write(line)
                     continue
                 for entry in correct_lemmas:
-                    if pos == entry[1] and lemma == entry[2] and re.fullmatch(entry[0], form):
+                    if pos == entry[1] and re.fullmatch(entry[2], lemma) and re.fullmatch(entry[0], form):
                         lemma = entry[3]
                         score = '11'
                 # Check for l'en, where l' is a determiner, should be "on"

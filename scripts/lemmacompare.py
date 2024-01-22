@@ -272,7 +272,10 @@ def disambiguate_pos(autoposs, goldposs=[], outfile='out.txt'):
             lines = [line]
             lines += [f.readline() for f in autopos_fs[1:]]
             autopostags = [get_pos(x) for x in lines]
-            goldpostag = goldpos_f.readline().rstrip().split('\t')[1] if goldpos_f else ''
+            try:
+                goldpostag = goldpos_f.readline().rstrip().split('\t')[1] if goldpos_f else ''
+            except IndexError:
+                goldpostag = ''
             autotag = vote(autopostags)
             # Case 1. Unambiguous gold pos
             if not goldpostag and not '|' in goldpostag:
