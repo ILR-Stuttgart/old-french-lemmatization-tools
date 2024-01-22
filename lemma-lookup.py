@@ -15,22 +15,27 @@ from lib.concat import Concatenater
 
 def sniff_lexicon(s):
     # Sniffs forms in the lexicon 
-    def contains_char(s, char):
-        if char in s and s.count(char) > 5:
-            return True
-        return False
+    def get_pnc_in_tok(s):
+        pnc_set = set()
+        for i in range(3, len(s)):
+            aslice = s[i-3:i]
+            if aslice[1] == ' ': continue # Ignore slices between 2 tokens.
+            aslice = aslice.lstrip().rstrip() # Strip space
+            alnum_l = [x.isalnum() for x in aslice]
+            if alnum_l.count(False) == len(alnum_l):
+                continue # all pnc = pnc token
+            elif False in alnum_l:
+                pnc_set.add(aslice[alnum_l.index(False)])
+        return list(pnc_set)
         
     d = {
         'uppercase': False,
-        'apostrophe': False,
-        'hyphen': False,
+        'pnc_in_tok_except': [],
         'is_ascii': False
     }
     
     if not s.islower(): d['uppercase'] = True
-    if contains_char(s, "'"): d['apostrophe'] = True
-    if contains_char(s, "’"): d['apostrophe'] = True
-    if contains_char(s, '-'): d['hyphen'] = True
+    d['pnc_in_tok_except'] = get_pnc_in_tok(s)
     if s.isascii(): d['is_ascii'] = True
     return d
 
@@ -94,6 +99,7 @@ def main(infiles, lexicon, user_outfile='', outdir='', ignore_numbers=False):
     # TODO get_normalizers(infile, lexicon)
     lemma_d, pos_d = parse_lexicon(lexicon, ignore_numbers=ignore_numbers)
     lex_properties = sniff_lexicon(' '.join([x for x in lemma_d.keys()]))
+    print(lex_properties)
     normalizer = Normalizer(pnc_in_tok=False, **lex_properties)
     # Concatenate files
     with tempfile.TemporaryDirectory() as tmpdir:
