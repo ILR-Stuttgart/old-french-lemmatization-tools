@@ -62,6 +62,8 @@ def vote(forms, ignore_numbers=False):
     return '|'.join(l)
     
 def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_poss=[]):
+    #if not autolemmas:
+    #    print('NO AUTOLEMMAS!')
     #print(goldlemmas, autolemmas, lookup_lemmas, lookup_poss)
     # Guide to scores attributed
     # -1: more than one option.
@@ -171,7 +173,8 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
             # no autolemmas. Can't resolve; return all lookup lemmas; score = -1
             elif len(lemma_ixs) > 1:
                 lemma = '|'.join(list(set([lookup_lemmas[i] for i in lemma_ixs])))
-                score = -1
+                #print(lookup_lemmas, autolemmas)
+                score = -1 # PROV
             # If this iteration of pos disambiguation has produced a
             # lemma, break out of the for loop
             if lemma: break
@@ -195,7 +198,7 @@ def score_lemmas(poss, goldlemmas=[], autolemmas=[], lookup_lemmas=[], lookup_po
             # Return all lookup lemmas, with score of -1
             else:
                 lemma = '|'.join(lookup_lemmas)
-                score = -1
+                score = -4 ##PROV
     # Case 5. No goldlemmas and no lookup lemmas, just autolemmas.
     # Return the autolemma with a score of 1000 (uncrosschecked autolemmas)
     elif autolemmas: # Attached to main if statement in module
@@ -234,14 +237,18 @@ def disambiguate_autoposlemma(autoposlemmas, posfile, outfile='out.txt', ignore_
             autolemmas = []
             for autopos, autolemma in autoposlemmas:
                 # Use pos disambiguation for multiple autolemmas
-                # but keep them all.
-                if autopos == pos or pos == '':
+                # but keep all that match the pos.
+                # If pos disambiguation fails, keep all autolemmas.
+                if autopos == pos:
                     autolemmas.append(autolemma)
                     # This may lead to duplicate autolemmas, but this
                     # is not an issue. The number of autolemmas never
                     # counts for anything.
                     # But it does count that the best model is passed
                     # first.
+            # If disambiguation fails to produce anything, copy all 
+            # autolemmas anyway. It's better to keep them in the mix.
+            if not autolemmas: autolemmas = [x[1] for x in autoposlemmas]
             try:
                 fout.write(form + '\t' + pos + '\t' + '|'.join(autolemmas) + '\n')
             except:
@@ -370,6 +377,7 @@ def main(
                     try:
                         autolemmas = al_line.split('\t')[2].split('|')
                     except IndexError:
+                        #print(al_line) # Some autolemmas are deleted by pos disambiguation.
                         pass
                 goldlemmas = []
                 if goldposlemma_f: # Get the (list of) gold lemmas

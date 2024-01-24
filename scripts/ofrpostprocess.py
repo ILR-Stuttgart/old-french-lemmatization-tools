@@ -30,13 +30,16 @@ correct_lemmas = [
     # deal with me > je
     ('.*m.*i', 'PRON', 'je', 'moi'),
     ('.*m[^i]*', 'PRON', 'je', 'me'),
-    # deal with eux > il
+    # deal with eux > il, la > il, etc.
     ('[^i][ul].+', 'PRON', 'il', 'eux'),
+    ('l.*', 'PRON', 'il', 'le'),
     # get rid of tous
     ('.*', 'PRON', 'tous', 'tout'),
     ('.*', 'DET', 'tous', 'tout'),
     ('.*', 'PRON', 'trèstous', 'trèstout'),
     ('.*', 'DET', 'trèstous', 'trèstout'),
+    # get rid / disambiguate uns if it doesn't end in [s] or [z]
+    ('.*[^sz]', 'DET', '(.*\|)?uns(\|.*)', 'un'),
     # get rid of itel
     ('.*', 'DET', 'itel', 'tel'),
     # get rid of cui > qui
