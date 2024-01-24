@@ -87,9 +87,9 @@ use, use the `--lexicons` argument, e.g.
 The original lexicon is based on the file `LGeRM-LexiqueMorphologique-MF-2.0.0.xml`
 converted using the [lgerm-xml2csv.py](scripts/lgerm-xml2csv.py)
 script and the lemmatized texts in the *[Base de français médiéval](https://txm.bfm-corpus.org)*.
-The [lgerm-medieval.tsv](lexicons/old-french/lgerm/lgerm-medieval.tsv) 
+The [lgerm-medieval.tsv](lexicons/old-french/lgerm/lgerm-medieval.tsv) file
 is made available under a CREATIVE COMMONS LICENSE CC-BY-NC 2.0.
-The [bfmgoldlem2022.tsv](lexicon/old-french/bfm/bfmgoldlem2022.tsv)
+The [bfmgoldlem2022.tsv](lexicons/old-french/bfm/bfmgoldlem2022.tsv) file
 is made available under the ETALAB OPEN LICENCE. See the respective
 subfolders for the license conditions. 
 
