@@ -85,10 +85,13 @@ use, use the `--lexicons` argument, e.g.
 ```
 
 The original lexicon is based on the file `LGeRM-LexiqueMorphologique-MF-2.0.0.xml`
-converted using the [lgerm-xml2csv.py](../../scripts/lgerm-xml2csv.py)
-script. The [lgerm-medieval.tsv](lexicons/old-french/lgerm-medieval) file
-is was downloaded from [http://www.atilf.fr/LGeRM/](http://www.atilf.fr/LGeRM/)
-on 22 December 2023 and is made available under a CREATIVE COMMONS LICENSE CC-BY-NC 2.0.
+converted using the [lgerm-xml2csv.py](scripts/lgerm-xml2csv.py)
+script and the lemmatized texts in the *[Base de français médiéval](https://txm.bfm-corpus.org)*.
+The [lgerm-medieval.tsv](lexicons/old-french/lgerm/lgerm-medieval.tsv) 
+is made available under a CREATIVE COMMONS LICENSE CC-BY-NC 2.0.
+The [bfmgoldlem2022.tsv](lexicon/old-french/bfm/bfmgoldlem2022.tsv)
+is made available under the ETALAB OPEN LICENCE. See the respective
+subfolders for the license conditions. 
 
 You can also build a lexicon file from your own gold corpus using the
 `build-lexicon.py` script:

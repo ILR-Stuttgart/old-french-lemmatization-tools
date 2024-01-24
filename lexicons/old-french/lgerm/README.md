@@ -1,8 +1,8 @@
-# Note on the source of the Old French lexicon
+# LGeRM Médiéval
 
 The file `lgerm-medieval.tsv` was generated from the file
 `LGeRM-LexiqueMorphologique-MF-2.0.0.xml` using the 
-[lgerm-xml2csv.py](../../scripts/lgerm-xml2csv.py) script.
+[lgerm-xml2csv.py](../../../scripts/lgerm-xml2csv.py) script.
 
 The original file was downloaded from 
 [http://www.atilf.fr/LGeRM/](http://www.atilf.fr/LGeRM/)

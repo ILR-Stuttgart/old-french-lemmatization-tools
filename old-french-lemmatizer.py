@@ -216,9 +216,9 @@ if __name__ == '__main__':
         'lib/old-french.par and/or stein-oldfrench.par.')
     parser.add_argument('--lexicons', nargs='*', help='Lexicon files (overrides supplied default lexicons)', 
         default=[
-            opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval.tsv'),
+            opj(script_path, 'lexicons', 'old-french', 'lgerm', 'lgerm-medieval.tsv'),
             opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval-corrections.tsv'),
-            opj(script_path, 'lexicons', 'old-french', 'bfmgoldlem2022.tsv')
+            opj(script_path, 'lexicons', 'old-french', 'bfm', 'bfmgoldlem2022.tsv')
             #opj(script_path, 'lexicons', 'punct.tsv')
         ]
     )
