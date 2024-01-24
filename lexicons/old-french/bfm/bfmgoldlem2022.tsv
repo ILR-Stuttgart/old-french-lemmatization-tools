@@ -1,12 +1,3 @@
-_bor	ADVgen	buer
-_dejoste	PRE	dejoste
-_mot_etranger	ETR	corpus|domini
-_mot_nombre	DETcar	.ccc.|.xlii.|.xxiiii.|cccc.
-_mot_nombre	PROcar	.c.|.liiii.|.liiij.|liiii.
-_mot_nombre	ADJcar	.cccc.
-_mot_nombre	ADJord	vintequatrisme
-_naje	ADVneg	naie
-_nuet	ADJqua	nues
 -	PONfbl	-
 -	PONfrt	-
 -,	PONfbl	-,
@@ -24,8 +15,8 @@ _nuet	ADJqua	nues
 '	PONpdr	’
 ‘	PONpga	‘
 ’	PONpdr	’
-"	PONpdr	'"|»|”
-"	PONpga	"'|«|“
+""""	PONpdr	"'""|»|”"
+""""	PONpga	"""'|«|“"
 """:"""""""	PONpxx	""":"""""""
 """."""""""	PONfrt	"""."""""""
 """"""","""	PONpxx	""""""","""
@@ -42,9 +33,6 @@ _nuet	ADJqua	nues
 )	PONpdr	)
 [	PONpga	[
 ]	PONpdr	]
-@card@	ADJcar	.mcc.|.mccxlviii.|.mccxxxix.|.mccxxxvi.|.mccxxxviii.|iiiicxxii
-@card@	DETcar	.ciiij.|.iijm.|.ijciiij.|.xm.
-@card@	PROcar	.iiijm.|.ijm.
 *	PONfbl	*
 *Amide	NOMpro	amide
 *Besus	NOMpro	besus
@@ -69,7 +57,6 @@ _nuet	ADJqua	nues
 à.lequel	PRE.PROrel	al|asquelx|auquel|ausquelz|auxquels|az
 à.lequel	PRE.DETrel	al|auquel
 à.les	PRE.DETdef	as|au|aus
-à+le	PRE.DETdef	au
 aaise	NOMcom	aaise|aeise|aiese
 aaise	ADJqua	aeise
 aaisement	NOMcom	adaisement
@@ -7719,7 +7706,7 @@ ignorant	ADJqua	ignorans
 ignorer	VERcjg	ignore|ignoroient|ignorons
 ignorer	VERppa	ignorans
 ignorer	VERinf	ignorer
-il	PROper	as|aus|ax|el|ele|eles|i|il|ill|ille|ils|ilz|l'|la|le|les|li|lo|lor|lou|lui|luy|yl
+il	PROper	i|il|ill|ille|ils|ilz|yl
 il	PROimp	i|il|yl
 il	PROdem	il
 île	NOMcom	idle|idles|ille|illes|isle|isles
@@ -7953,9 +7940,8 @@ jaseran	NOMcom	jazerenc
 jaune	ADJqua	gaunes|giaune|giaunes|jalne|jaulnes|jaune|jaunes
 jaune	NOMcom	jaune
 javelot	NOMcom	javelot|javeloz
-je	PROper	eu|g'|ge|gié|ie|j'|je|jeo|jo|jou|m'|me|moi|moy
+je	PROper	eu|g'|ge|gié|ie|j'|je|jeo|jo|jou
 je.en	PROper.PROadv	jon
-je.il	PROper.PROper	gel|ges|jel|jes
 je.le	PROper.PROper	gel|jel|jes|joes|jol|jos
 Jean	NOMpro	iohan|iohans|jean|jeham|jehan|jehans|jehanz|johan
 Jean-Baptiste	NOMpro	jehan-baptiste
@@ -8259,9 +8245,8 @@ lavure	NOMcom	lavadures
 Lay	NOMpro	lez
 layer	VERcjg	lai|lairez|lairoient|lairont|lait|leira|leirai|leiroie|leiroit|leiroiz|leiront|leit|leiz|lerai|lesses|let|lez
 Lazare	NOMpro	lazaron|lazer
-le	DETdef	l|l'|la|las|le|les|lesquelles|lez|li|lis|ll'|lo|los|lou|ls|lu|ly|lé|nlo
-le	PROper	el|l|l'|la|las|le|les|lez|li|lis|lla'|llo|llos|lo|los|ls|lu|lz|lé
-le	PROrel	laquelle
+le	DETdef	l|l'|la|las|le|les|lez|li|lis|ll'|lo|los|lou|ls|lu|ly|lé|nlo
+le	PROper	el|l|l'|la|las|le|les|lez|lis|lla'|llo|llos|lo|los|ls|lu|lz|lé
 lé	NOMcom	lé
 lé	ADJqua	lee|lees|let|lez|lé
 léans	ADVgen	laiens|laienz|leans|leanz|leens
@@ -8338,7 +8323,6 @@ lez	VERcjg	lez
 lézarde	NOMcom	leisarde
 li	PROper	l'|li|liu|ly
 li	DETdef	li
-li/lui	PROper	li
 liant	NOMcom	lians
 libéral	ADJqua	liberal|liberales|liberaulx|liberaz
 libéralement	ADVgen	liberalment
@@ -9633,7 +9617,7 @@ nonpourquant	ADVgen	neporcant|neporqant|neporquant|nepourquant|nepurquant
 Noples	NOMpro	noples
 Noradin	NOMpro	loradin
 nord	NOMcom	nort|north
-Nord+Galles	NOMpro	northwales
+Nord.Galles	NOMpro	northwales
 Norfolk	ETR	norfolke
 Norfork	ETR	norfulke
 normand	NOMpro	normans|normant|normanz|norment|normenz
@@ -13126,7 +13110,7 @@ succession	NOMcom	succession
 sucer	VERcjg	sucent|suche|suçast
 sucre	NOMcom	çucre
 sud	NOMcom	su|suth
-Sud+Galles	NOMpro	suthwales
+Sud.Galles	NOMpro	suthwales
 suer	VERcjg	sua|suded|sue|suent
 suer	VERinf	suer
 suer	VERppa	suant|suanz
@@ -13751,7 +13735,7 @@ trepeis	NOMcom	trepeiz
 tres	ETR	trium
 très	PRE	tres|triés
 très	ADVgen	tres|très|trés
-très+beau	ADJqua	tresbeau
+très.beau	ADJqua	tresbeau
 tresaller	VERcjg	tresvait
 tresche	NOMcom	tresce|tresche
 Tresiguidy	NOMpro	tresiguidy
@@ -13872,7 +13856,7 @@ truchement	NOMcom	druguemant
 truffe	NOMcom	trufe
 truite	NOMcom	truites
 Truquam	NOMpro	truquam
-tu	PROper	t'|te|toi|tu
+tu	PROper	tu
 tu	ETR	te
 tu.me	PROper.PROper	tun
 Tubele	NOMpro	tubele
