@@ -77,8 +77,9 @@ def main(infile, outfile):
                     fout.write(line)
                     continue
                 # Add a big fat '?' in front of -10 scored lemmas
-                if score == -10:
+                if str(score) == '-10' and lemma != 'UNKNOWN':
                     lemma = '?' + lemma
+                    print(lemma)
                 # Correct certain lemmas
                 for entry in correct_lemmas:
                     if pos == entry[1] and re.fullmatch('(.*\|)?' + entry[2] + '(\|.*)?', lemma) and re.fullmatch(entry[0], form.lower()):

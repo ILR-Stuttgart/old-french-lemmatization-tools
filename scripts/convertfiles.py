@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import argparse, os.path, csv, pickle
+import argparse, xml.parsers.expat, os.path, csv, pickle, re
 
 class Error(Exception):
     pass
@@ -152,7 +152,92 @@ class ConlluConverter(Converter):
                     while source_line != '': # continue until end of source file.
                         source_line = source_file.readline()
                         if source_line: fout.write(source_line)
-                    
+                        
+class TeiConverter(Converter):
+    """
+    Converts <w> tokenized TEI files. Will only recognize single-line
+    words.
+    """
+
+    def from_source(self, outfile):
+        with open(self.source_file, newline='', encoding=self.source_encoding) as fin, open(outfile, 'w', encoding='utf-8') as fout:
+            counter = 0
+            for i, line in enumerate(fin):
+                m = re.search(r'<w[ >].*</w>', line)
+                if not m: continue
+                # Initialize a parser and parse the line
+                parser = MyParser()
+                parser.xmlparser.Parse(m.group(0))
+                fout.write(parser.form)
+                if parser.pos: fout.write('\t' + parser.pos)
+                if parser.lemma: fout.write('\t' + parser.lemma)
+                # write line end and increment counter
+                fout.write('\n')
+                self.linemap.append((i, counter))
+                counter += 1
+                
+    def to_source(self, infile, outfile):
+        with open(infile, encoding='utf-8') as fin, open(self.source_file, encoding=self.source_encoding) as source_file, open(outfile, 'w', encoding='utf-8') as fout:
+            i = -1
+            for maptuple in self.linemap:
+                fin_line = fin.readline()
+                source_line = source_file.readline()
+                i += 1
+                while i < maptuple[0]: # get right source line
+                    fout.write(source_line)
+                    source_line = source_file.readline()
+                    i += 1
+                fin_fields = fin_line.rstrip().split('\t')
+                m = re.search(r'(<w[^>]*)([^>]*?>.*</w>)', source_line)
+                m2 = re.search(r' lemma="[^"]+"', m.group(1))
+                m3 = re.search(r' lemma-score="[^"]+"', m.group(1))
+                if not m:
+                    print(line)
+                    # loop again
+                    continue
+                if m2:
+                    s = m.group(1)[:m2.start()]
+                else:
+                    s = m.group(1)
+                s += ' lemma="{}" lemma-score="{}"'.format(
+                    xmlent(fin_fields[2]),
+                    xmlent(fin_fields[3])
+                )
+                if m3:
+                    s += m.group(1)[m2.end():m3.start()] + m.group(1)[m3.end():] + m.group(2)
+                elif m2:
+                    s += m.group(1)[m2.end():] + m.group(2)
+                else:
+                    s += m.group(2)
+                fout.write(source_line[:m.start()] + s + source_line[m.end():])
+            while source_line != '': # continue until end of source file.
+                source_line = source_file.readline()
+                if source_line: fout.write(source_line)
+            
+class MyParser(): # BaseClass
+    
+    def __init__(self):
+        self.xmlparser = xml.parsers.expat.ParserCreate()
+        self.xmlparser.CharacterDataHandler = self.character_data_handler
+        self.xmlparser.StartElementHandler = self.start_element_handler
+        self.pos = ''
+        self.lemma = ''
+        self.form = ''
+        
+    def start_element_handler(self, name, attributes):
+        if name == 'w':
+            try:
+                self.pos = attributes['pos']
+            except KeyError:
+                pass
+            try:
+                self.lemma = attributes['lemma']
+            except KeyError:
+                pass
+    
+    def character_data_handler(self, data):
+        self.form += data
+        
 def get_converter(source_file):
     ext = os.path.splitext(source_file)[1]
     if ext in ['', '.txt', '.tsv']:
@@ -167,8 +252,8 @@ def get_converter(source_file):
         raise UnknownFileType('This type of file is not supported.')
         #return PsdConverter(source_file)
     if ext in ['.xml']:
-        raise UnknownFileType('This type of file is not supported.')
-        #return TEIConverter(source_file)
+        #raise UnknownFileType('This type of file is not supported.')
+        return TeiConverter(source_file)
     else:
         raise UnknownFileType('This type of file is not supported.')
         
@@ -182,6 +267,18 @@ def convert_from_source(infile, outfile='out.txt', conllu_xpos=False):
     if conllu_xpos: converter.xpos = True # won't matter if not a conllu file
     converter.from_source(outfile)
     return converter
+    
+def xmlent(s):
+    """Function to add XML entities to passed text."""
+    # Do nothing if the string already contains entities.
+    if re.search(r'&[^&;\s]+;', s): return s
+    # Otherwise make string XML safe.
+    s = s.replace('&', '&amp;')
+    s = s.replace('<', '&lt;')
+    s = s.replace('>', '&gt;')
+    s = s.replace('"', '&quot;')
+    s = s.replace("'", '&apos;')
+    return s 
     
 def main(infile, outfile='out.txt', lemmafile=''):
     

@@ -183,8 +183,8 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     scripts.lemmacompare.main(**kwargs)
     # 7. Post process
     print('Running post-processor.')
-    #scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
-    shutil.copy2(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
+    scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
+    #shutil.copy2(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     if outdir or \
     (outfile and len(infiles) == 1 and os.path.splitext(outfile)[1] == os.path.splitext(infiles[0])[1]):
         # Only reconverts files if an outdir is given, or one one infile
@@ -193,7 +193,8 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
         concatenater.split(opj(tmpdir, 'out-pp.txt'), outdir=tmpdir) # overwrites converted infile.
         for converter, converted_infile in zip(converters, converted_infiles):
             if converter:
-                outfile = opj(outdir, os.path.basename(converter.source_file))
+                if not outfile: # single outfile case must be handled too
+                    outfile = opj(outdir, os.path.basename(converter.source_file))
                 converter.to_source(converted_infile, outfile)
             else:
                 outfile = outfile or opj(outdir, os.path.basename(converted_infile))
