@@ -28,11 +28,14 @@ correct_lemmas = [
     ('.*', 'PRON', 'icelui', 'cil'),
     ('.*', 'DET', 'icelui', 'cil'),
     # deal with me > je
-    ('.*m.*i', 'PRON', 'je', 'moi'),
-    ('.*m[^i]*', 'PRON', 'je', 'me'),
+    ('m.i', 'PRON', 'je', 'moi'),
+    ('m.?', 'PRON', 'je', 'me'),
     # deal with eux > il, la > il, etc.
     ('[^i][ul].+', 'PRON', 'il', 'eux'),
     ('l.*', 'PRON', 'il', 'le'),
+    # deal with te > tu
+    ('t.i', 'PRON', 'tu', 'toi'),
+    ('t[^u]?', 'PRON', 'tu', 'te'),
     # get rid of tous
     ('.*', 'PRON', 'tous', 'tout'),
     ('.*', 'DET', 'tous', 'tout'),
@@ -50,17 +53,17 @@ correct_lemmas = [
     ('es', 'DET', '.*', 'le'),
     ('e', 'ADP', '.*', 'en'),
     # MCVF: de DET > de
-    ("[Dd][e']?", 'DET', '.*', 'de'),
+    ("d[e']?", 'DET', '.*', 'de'),
     # correct ne.il > ne.le and si.il > si.le
     ('.*', 'ADV.PRON', 'ne.il', 'ne.le'),
     ('.*', 'ADV.PRON', 'si.il', 'si.le'),
     ('en', 'ADV', 'an', 'en'),
-    ('[Ll]i', 'PRON', 'il', 'li'),
-    ('[Vv]us', 'PRON', 'vu', 'vous'), # Anglo-French vu
-    ('[Ss]ire', 'NOUN', 'seigneur', 'sire'),
-    ('[Mm]ort', 'NOUN', 'mourir', 'mort'), # pos disambiguation fails here because of mors NOUN
+    ('li', 'PRON', 'il', 'li'),
+    ('vus', 'PRON', 'vu', 'vous'), # Anglo-French vu
+    ('sire', 'NOUN', 'seigneur', 'sire'),
+    ('mort', 'NOUN', 'mourir', 'mort'), # pos disambiguation fails here because of mors NOUN
     # saint can be PROPN in gold annotation; confusing sometimes
-    ('.*', 'PROPN', '(.*\|)?saint(\|.*)', 'saint')
+    ('.*', 'PROPN', 'saint', 'saint')
 ]
 
 def main(infile, outfile):
@@ -73,8 +76,12 @@ def main(infile, outfile):
                 except:
                     fout.write(line)
                     continue
+                # Add a big fat '?' in front of -10 scored lemmas
+                if score == -10:
+                    lemma = '?' + lemma
+                # Correct certain lemmas
                 for entry in correct_lemmas:
-                    if pos == entry[1] and re.fullmatch(entry[2], lemma) and re.fullmatch(entry[0], form):
+                    if pos == entry[1] and re.fullmatch('(.*\|)?' + entry[2] + '(\|.*)?', lemma) and re.fullmatch(entry[0], form.lower()):
                         lemma = entry[3]
                         score = '11'
                 # Check for l'en, where l' is a determiner, should be "on"

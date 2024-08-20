@@ -81,20 +81,20 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
     taggerouts = []
     # 2. Call RNN tagger
-    # Two models is worse than one; don't use
-    #for lang, fname in [('old-french', 'rnn_of.txt'), ('french', 'rnn_fre.txt')]:
+    for lang, fname in [('old-french', 'rnn_of.txt')]:#, ('middle-french', 'rnn_midf.txt')]:
     # Updated for RNN Tagger v. 1.4.7
-    lang, fname = 'old-french', 'rnn.txt'
-    if rnnpath: # Inherit venv; call script
-        print('Calling the RNN Tagger')
-        scripts.rnntag.main(rnnpath, lang, [opj(tmpdir, 'basefile.txt')],
-            outfile=opj(tmpdir, fname))
-        taggerouts.append(opj(tmpdir, fname))
-    elif os.path.exists(opj(tmpdir, fname)):
-        print('Using RNN tags from ' + opj(tmpdir, fname))
-        print("(Move this file or give --rnnpath to disable this.)")
-        taggerouts.append(opj(tmpdir, fname))
-        rnnpath = 'yes'
+    # Still performs better with just the Old French model.
+    #lang, fname = 'middle-french', 'rnn.txt'
+        if rnnpath: # Inherit venv; call script
+            print('Calling the RNN Tagger')
+            scripts.rnntag.main(rnnpath, lang, [opj(tmpdir, 'basefile.txt')],
+                outfile=opj(tmpdir, fname))
+            taggerouts.append(opj(tmpdir, fname))
+        elif os.path.exists(opj(tmpdir, fname)):
+            print('Using RNN tags from ' + opj(tmpdir, fname))
+            print("(Move this file or give --rnnpath to disable this.)")
+            taggerouts.append(opj(tmpdir, fname))
+            rnnpath = 'yes'
     # 2b. Call the Tree Tagger
     if rnnpath and ttpath:
         print('WARNING: Tests suggest that better results are achieved with the RNN Tagger alone.')
@@ -133,6 +133,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
         taggerouts[i] = new_taggerout
         
     if lexicons:
+    #if False:
         # 4. Call lemma lookup on each lexicon file
         print('Lemmatizing using lexicon files and converting PoS tags to UD.')
         for i, lexicon in enumerate(lexicons):
@@ -174,6 +175,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     if ttpath and taggerouts:
         kwargs['autopos'] = taggerouts[:]
     if lexicons:
+    #if False:
         kwargs['lookupposlemma'] = [opj(tmpdir, 'lookup_normed' + str(i) + '.txt') for i in range(len(lexicons))]
         kwargs['lexicons'] = [x for x in lexicons]
     print('Comparing results and scoring final lemmatization.')
@@ -181,7 +183,8 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     scripts.lemmacompare.main(**kwargs)
     # 7. Post process
     print('Running post-processor.')
-    scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
+    #scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
+    shutil.copy2(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     if outdir or \
     (outfile and len(infiles) == 1 and os.path.splitext(outfile)[1] == os.path.splitext(infiles[0])[1]):
         # Only reconverts files if an outdir is given, or one one infile
