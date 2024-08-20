@@ -83,7 +83,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     # 2. Call RNN tagger
     # Two models is worse than one; don't use
     #for lang, fname in [('old-french', 'rnn_of.txt'), ('french', 'rnn_fre.txt')]:
-    # Updated for RNN Tagger v. 1.4.4
+    # Updated for RNN Tagger v. 1.4.7
     lang, fname = 'old-french', 'rnn.txt'
     if rnnpath: # Inherit venv; call script
         print('Calling the RNN Tagger')
@@ -194,7 +194,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
                 converter.to_source(converted_infile, outfile)
             else:
                 outfile = outfile or opj(outdir, os.path.basename(converted_infile))
-                shutil.copy2(converted_infile, outfile)
+                shutil.copy2(opj(tmpdir, 'out-pp.txt'), outfile)
     elif outfile:
         shutil.copy2(opj(tmpdir, 'out-pp.txt'), outfile)
     else: # Nowhere else to dump the output, print it to stdout.
