@@ -57,16 +57,22 @@ correct_lemmas = [
     # correct ne.il > ne.le and si.il > si.le
     ('.*', 'ADV.PRON', 'ne.il', 'ne.le'),
     ('.*', 'ADV.PRON', 'si.il', 'si.le'),
+    ('.*', 'PRON.PRON', 'je.il', 'je.le'),
     ('en', 'ADV', 'an', 'en'),
     ('li', 'PRON', 'il', 'li'),
     ('vus', 'PRON', 'vu', 'vous'), # Anglo-French vu
     ('sire', 'NOUN', 'seigneur', 'sire'),
     ('mort', 'NOUN', 'mourir', 'mort'), # pos disambiguation fails here because of mors NOUN
     # saint can be PROPN in gold annotation; confusing sometimes
-    ('.*', 'PROPN', 'saint', 'saint')
+    ('.*', 'PROPN', 'saint', 'saint'),
+    # Correct some common forms that cause problems in QLR
+    ('é', 'CCONJ', '.*', 'et'),
+    ('ú', 'CCONJ', '.*', 'ou'),
+    ('ú', 'PRON', '.*', 'où'),
 ]
 
 def main(infile, outfile):
+    unks = []
     with open(infile, 'r', encoding='utf-8') as fin:
         with open(outfile, 'w', encoding='utf-8') as fout:
             last_line = []
@@ -76,10 +82,6 @@ def main(infile, outfile):
                 except:
                     fout.write(line)
                     continue
-                # Add a big fat '?' in front of -10 scored lemmas
-                if str(score) == '-10' and lemma != 'UNKNOWN':
-                    lemma = '?' + lemma
-                    print(lemma)
                 # Correct certain lemmas
                 for entry in correct_lemmas:
                     if pos == entry[1] and re.fullmatch('(.*\|)?' + entry[2] + '(\|.*)?', lemma) and re.fullmatch(entry[0], form.lower()):
@@ -89,5 +91,11 @@ def main(infile, outfile):
                 if last_line and last_line[1].endswith('DET') and last_line[2] == 'le' and pos == 'PRON' and lemma == 'en':
                     lemma = 'on'
                     score = '11'
+                # Add a big fat '?' in front of -10 scored lemmas
+                if str(score) == '-10' and lemma != 'UNKNOWN':
+                    lemma = '?' + lemma
+                    unks.append(lemma)
+                    #print(lemma)
                 fout.write('\t'.join([form, pos, lemma, score]) + '\n')
                 last_line = [form, pos, lemma, score]
+    return unks
