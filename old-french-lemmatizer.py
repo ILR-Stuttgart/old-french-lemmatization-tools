@@ -50,7 +50,7 @@ def normalize_infile(infile, outfile):
                     fout.write(x[0] + '\n')
     return max(l)
 
-def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', outdir='', inputanno='gold'):
+def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', outdir='', inputanno='gold', printunk=False):
     
     script_path = os.path.dirname(__file__)
     # -1. Run the converter and store converters
@@ -183,7 +183,14 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     scripts.lemmacompare.main(**kwargs)
     # 7. Post process
     print('Running post-processor.')
-    scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
+    unks = scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
+    if printunk:
+        unktups = [(unks.count(x), x) for x in list(set(unks))]
+        unktups.sort(key=lambda x: x[0], reverse=True)
+        print('Unknown lemmas')
+        for freq, lem in unktups:
+            print(str(freq) + '\t' + lem)
+    
     #shutil.copy2(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     if outdir or \
     (outfile and len(infiles) == 1 and os.path.splitext(outfile)[1] == os.path.splitext(infiles[0])[1]):
@@ -239,6 +246,7 @@ if __name__ == '__main__':
             '''
         )
     )
+    parser.add_argument('--printunk', action='store_true', help='Print unknown lemmas to screen')
     kwargs = vars(parser.parse_args())
     #print(kwargs)
     if kwargs['tmpdir']:
