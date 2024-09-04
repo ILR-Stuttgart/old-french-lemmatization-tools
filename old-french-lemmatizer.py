@@ -50,7 +50,7 @@ def normalize_infile(infile, outfile):
                     fout.write(x[0] + '\n')
     return max(l)
 
-def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', outdir='', inputanno='gold', printunk=False):
+def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', outdir='', inputanno='gold'):
     
     script_path = os.path.dirname(__file__)
     # -1. Run the converter and store converters
@@ -183,14 +183,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     scripts.lemmacompare.main(**kwargs)
     # 7. Post process
     print('Running post-processor.')
-    unks = scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
-    if printunk:
-        st = set(unks)
-        tps = [(x, unks.count(x)) for x in list(st)]
-        tps.sort(key=lambda x: x[1], reverse=True)
-        print('Unknown lemmas:')
-        for tp in tps:
-            print('{}\t{}'.format(tp[1], tp[0]))
+    scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     #shutil.copy2(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     if outdir or \
     (outfile and len(infiles) == 1 and os.path.splitext(outfile)[1] == os.path.splitext(infiles[0])[1]):
@@ -203,7 +196,6 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
                 if not outfile: # single outfile case must be handled too
                     outfile = opj(outdir, os.path.basename(converter.source_file))
                 converter.to_source(converted_infile, outfile)
-                outfile = ''
             else:
                 outfile = outfile or opj(outdir, os.path.basename(converted_infile))
                 shutil.copy2(opj(tmpdir, 'out-pp.txt'), outfile)
@@ -247,7 +239,6 @@ if __name__ == '__main__':
             '''
         )
     )
-    parser.add_argument('--printunk', help='Prints unknown lemmas to stdout.', action='store_true')
     kwargs = vars(parser.parse_args())
     #print(kwargs)
     if kwargs['tmpdir']:
