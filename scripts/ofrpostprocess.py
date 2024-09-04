@@ -27,6 +27,8 @@ correct_lemmas = [
     ('.*', 'PRON', 'ice', 'ce'),
     ('.*', 'PRON', 'icelui', 'cil'),
     ('.*', 'DET', 'icelui', 'cil'),
+    ('.*', 'PRON', 'icelle', 'cil'),
+    ('.*', 'DET', 'icelle', 'cil'),
     # deal with me > je
     ('m.i', 'PRON', 'je', 'moi'),
     ('m.?', 'PRON', 'je', 'me'),
