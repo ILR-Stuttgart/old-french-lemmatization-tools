@@ -199,12 +199,9 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
         print('Splitting and back-converting output to original format.')
         concatenater.split(opj(tmpdir, 'out-pp.txt'), outdir=tmpdir) # overwrites converted infile.
         for converter, converted_infile in zip(converters, converted_infiles):
-            print(converter.source_file)
-            print(converted_infile)
             if converter:
                 if not outfile: # single outfile case must be handled too
                     outfile = opj(outdir, os.path.basename(converter.source_file))
-                print(outfile)
                 converter.to_source(converted_infile, outfile)
                 outfile = ''
             else:

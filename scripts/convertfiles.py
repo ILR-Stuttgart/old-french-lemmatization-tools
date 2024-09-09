@@ -179,18 +179,19 @@ class TeiConverter(Converter):
     def to_source(self, infile, outfile):
         with open(infile, encoding='utf-8') as fin, open(self.source_file, encoding=self.source_encoding) as source_file, open(outfile, 'w', encoding='utf-8') as fout:
             i = -1
-            parser = MyParser()
+            parser = ToSourceParser()
             for maptuple in self.linemap:
                 fin_line = fin.readline()
                 source_line = source_file.readline()
+                parser.w_attributes = {}
+                parser.xmlparser.Parse(source_line)
                 i += 1
                 while i < maptuple[0]: # get right source line
                     fout.write(source_line)
                     source_line = source_file.readline()
+                    parser.xmlparser.Parse(source_line)
                     i += 1
                 fin_fields = fin_line.rstrip().split('\t')
-                parser.w_attributes = {}
-                parser.xmlparser.Parse(source_line)
                 parser.w_attributes['lemma'] = fin_fields[2]
                 parser.w_attributes['lemma-score'] = fin_fields[3]
                 key = 'pos_ofl' if 'pos' in parser.w_attributes else 'pos'
@@ -234,6 +235,13 @@ class MyParser(): # BaseClass
     
     def character_data_handler(self, data):
         self.form += data
+        
+class ToSourceParser(MyParser):
+    # Disable building self.form when ToSource
+    
+    def character_data_handler(self, data):
+        pass
+    
         
 def get_converter(source_file):
     ext = os.path.splitext(source_file)[1]
