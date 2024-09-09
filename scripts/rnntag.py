@@ -8,6 +8,7 @@
 #   (i.e sentence tokenization requirement)                           #
 # + Write output to a file, not stdout.                               # 
 # + Designed for RNNTagger 1.4.4.                                     #
+# + Applies file converters                                           #
 #######################################################################
 
 import argparse, os, os.path, shutil, subprocess, tempfile, sys

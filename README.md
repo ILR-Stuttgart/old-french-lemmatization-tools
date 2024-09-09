@@ -110,7 +110,6 @@ and the lexicon use the **same** part of speech tags, otherwise
 the lemmatizer won't recognize the tagset and won't be able to convert
 them to UD. Do not extend the default lexicon.
 
-
 ## Usage (advanced)
 
 ### Saving the output
@@ -199,6 +198,8 @@ converts to form TAB pos TAB lemma format before processing:
         **word** column. **pos** and **lemma** will be read from 
         appropriately named columns.
 + .conllu: A CONLL-U file.
++ .xml: A TEI-XML file with `<w>` elements. There must be only one
+    `<w>` per line and each `<w>` must be on a single line.
 
 If you set the `--outdir` parameter, the lemmatizer will convert the
 output back into the source format.

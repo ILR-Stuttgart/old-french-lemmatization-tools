@@ -179,6 +179,7 @@ class TeiConverter(Converter):
     def to_source(self, infile, outfile):
         with open(infile, encoding='utf-8') as fin, open(self.source_file, encoding=self.source_encoding) as source_file, open(outfile, 'w', encoding='utf-8') as fout:
             i = -1
+            parser = MyParser()
             for maptuple in self.linemap:
                 fin_line = fin.readline()
                 source_line = source_file.readline()
@@ -188,27 +189,21 @@ class TeiConverter(Converter):
                     source_line = source_file.readline()
                     i += 1
                 fin_fields = fin_line.rstrip().split('\t')
-                m = re.search(r'(<w[^>]*)([^>]*?>.*</w>)', source_line)
-                m2 = re.search(r' lemma="[^"]+"', m.group(1))
-                m3 = re.search(r' lemma-score="[^"]+"', m.group(1))
-                if not m:
-                    print(line)
-                    # loop again
-                    continue
-                if m2:
-                    s = m.group(1)[:m2.start()]
-                else:
-                    s = m.group(1)
-                s += ' lemma="{}" lemma-score="{}"'.format(
-                    xmlent(fin_fields[2]),
-                    xmlent(fin_fields[3])
-                )
-                if m3:
-                    s += m.group(1)[m2.end():m3.start()] + m.group(1)[m3.end():] + m.group(2)
-                elif m2:
-                    s += m.group(1)[m2.end():] + m.group(2)
-                else:
-                    s += m.group(2)
+                parser.w_attributes = {}
+                parser.xmlparser.Parse(source_line)
+                parser.w_attributes['lemma'] = fin_fields[2]
+                parser.w_attributes['lemma-score'] = fin_fields[3]
+                key = 'pos_ofl' if 'pos' in parser.w_attributes else 'pos'
+                parser.w_attributes[key] = fin_fields[1]
+                # Write the new <w> start element
+                s = '<w id="{}"'.format(parser.w_attributes.pop('id'))
+                # There almost certainly will be things to write, but we need to check
+                # to make sure that the XML is valid.
+                if d: s += ' ' + ' '.join(['{}="{}"'.format(key, xmlent(value)) for key, value in parser.w_attributes.items()])
+                s += '>'
+                # Find the location of <w> element in the source line
+                m = re.search(r'<w [^>]+>', source_line)
+                # Write new line
                 fout.write(source_line[:m.start()] + s + source_line[m.end():])
             while source_line != '': # continue until end of source file.
                 source_line = source_file.readline()
@@ -223,9 +218,11 @@ class MyParser(): # BaseClass
         self.pos = ''
         self.lemma = ''
         self.form = ''
+        self.w_attributes = {}
         
     def start_element_handler(self, name, attributes):
         if name == 'w':
+            self.w_attributes = attributes
             try:
                 self.pos = attributes['pos']
             except KeyError:
