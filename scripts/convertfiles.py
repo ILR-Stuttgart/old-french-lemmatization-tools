@@ -199,7 +199,7 @@ class TeiConverter(Converter):
                 s = '<w id="{}"'.format(parser.w_attributes.pop('id'))
                 # There almost certainly will be things to write, but we need to check
                 # to make sure that the XML is valid.
-                if d: s += ' ' + ' '.join(['{}="{}"'.format(key, xmlent(value)) for key, value in parser.w_attributes.items()])
+                if parser.w_attributes: s += ' ' + ' '.join(['{}="{}"'.format(key, xmlent(value)) for key, value in parser.w_attributes.items()])
                 s += '>'
                 # Find the location of <w> element in the source line
                 m = re.search(r'<w [^>]+>', source_line)
