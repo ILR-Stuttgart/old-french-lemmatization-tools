@@ -58,8 +58,10 @@ correct_lemmas = [
     ("d[e']?", 'DET', '.*', 'de'),
     # correct ne.il > ne.le and si.il > si.le
     ('.*', 'ADV.PRON', 'ne.il', 'ne.le'),
+    ('.*', 'PRON', 'ne.il', 'ne.le'), # UD annotation for SRCMF
     ('.*', 'ADV.PRON', 'si.il', 'si.le'),
     ('.*', 'PRON.PRON', 'je.il', 'je.le'),
+    ('.*', 'PRON', 'je.il', 'je.le'), # UD annotation for SRCMF
     ('en', 'ADV', 'an', 'en'),
     ('li', 'PRON', 'il', 'li'),
     ('vus', 'PRON', 'vu', 'vous'), # Anglo-French vu
