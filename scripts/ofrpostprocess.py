@@ -44,7 +44,7 @@ correct_lemmas = [
     ('.*', 'PRON', 'trèstous', 'trèstout'),
     ('.*', 'DET', 'trèstous', 'trèstout'),
     # get rid / disambiguate uns if it doesn't end in [s] or [z]
-    ('.*[^sz]', 'DET', '(.*\|)?uns(\|.*)', 'un'),
+    ('.*[^sz]', 'DET', r'(.*\|)?uns(\|.*)', 'un'),
     # get rid of itel
     ('.*', 'DET', 'itel', 'tel'),
     # get rid of cui > qui
@@ -88,7 +88,7 @@ def main(infile, outfile):
                     continue
                 # Correct certain lemmas
                 for entry in correct_lemmas:
-                    if pos == entry[1] and re.fullmatch('(.*\|)?' + entry[2] + '(\|.*)?', lemma) and re.fullmatch(entry[0], form.lower()):
+                    if pos == entry[1] and re.fullmatch(r'(.*\|)?' + entry[2] + r'(\|.*)?', lemma) and re.fullmatch(entry[0], form.lower()):
                         lemma = entry[3]
                         score = '11'
                 # Check for l'en, where l' is a determiner, should be "on"
