@@ -81,7 +81,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
     taggerouts = []
     # 2. Call RNN tagger
-    for lang, fname in [('old-french', 'rnn_of.txt')]:#, ('middle-french', 'rnn_midf.txt')]:
+    for lang, fname in [('historical-french', 'rnn_of.txt')]:#, ('middle-french', 'rnn_midf.txt')]:
     # Updated for RNN Tagger v. 1.4.7
     # Still performs better with just the Old French model.
     #lang, fname = 'middle-french', 'rnn.txt'
@@ -184,14 +184,13 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     # 7. Post process
     print('Running post-processor.')
     unks = scripts.ofrpostprocess.main(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
+    #shutil.copy2(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     if printunk:
         unktups = [(unks.count(x), x) for x in list(set(unks))]
         unktups.sort(key=lambda x: x[0], reverse=True)
         print('Unknown lemmas')
         for freq, lem in unktups:
             print(str(freq) + '\t' + lem)
-    
-    #shutil.copy2(opj(tmpdir, 'out.txt'), opj(tmpdir, 'out-pp.txt'))
     if outdir or \
     (outfile and len(infiles) == 1 and os.path.splitext(outfile)[1] == os.path.splitext(infiles[0])[1]):
         # Only reconverts files if an outdir is given, or one one infile

@@ -97,7 +97,7 @@ def main(infile, outfile):
                     score = '11'
                 # Add a big fat '?' in front of -10 scored lemmas
                 if str(score) == '-10' and lemma != 'UNKNOWN':
-                    lemma = '?' + lemma
+                    #lemma = '?' + lemma
                     unks.append(lemma)
                     #print(lemma)
                 fout.write('\t'.join([form, pos, lemma, score]) + '\n')
