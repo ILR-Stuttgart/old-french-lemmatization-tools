@@ -14,6 +14,7 @@ class Converter():
         self.linemap = []
         self.source_file = source_file
         self.source_encoding = source_encoding
+        self.exportpos = False
         
     def from_source(self, outfile):
         # Default method, does nothing
@@ -85,7 +86,8 @@ class CsvConverter(Converter):
                         print(row)
                         print(fin_line)
                         raise
-                    row[postag], row[lemmatag], row[scoretag] = pos, lemma, score
+                    row[lemmatag], row[scoretag] = lemma, score
+                    if self.exportpos: row[postag] = pos
                     rows.append(row)
                 #print(rows[:10])
             with open(outfile, 'w', newline='', encoding=self.source_encoding) as fout:
@@ -138,14 +140,15 @@ class ConlluConverter(Converter):
                             continue
                         fields = source_line.rstrip().split('\t')
                         fin_fields = fin_line.rstrip().split('\t')
-                        try:
-                            fields[3] = fin_fields[1] # UPOS
-                        except IndexError:
-                            print(source_line)
-                            print(fin_line)
-                            print(self.linemap)
-                            print(maptuple)
-                            raise
+                        if self.exportpos:
+                            try:
+                                fields[4] = fin_fields[1] # XPOS: DON'T OVERWRITE PARSER OUTPUT
+                            except IndexError:
+                                print(source_line)
+                                print(fin_line)
+                                print(self.linemap)
+                                print(maptuple)
+                                raise
                         fields[2] = fin_fields[2] # LEMMA
                         fields[9] += '|lemmascore=' + str(fin_fields[3]) # score
                         fout.write('\t'.join(fields) + '\n')
@@ -194,8 +197,9 @@ class TeiConverter(Converter):
                 fin_fields = fin_line.rstrip().split('\t')
                 parser.w_attributes['lemma'] = fin_fields[2]
                 parser.w_attributes['lemma-score'] = fin_fields[3]
-                key = 'pos_ofl' if 'pos' in parser.w_attributes else 'pos'
-                parser.w_attributes[key] = fin_fields[1]
+                if self.exportpos:
+                    key = 'pos_ofl' if 'pos' in parser.w_attributes else 'pos'
+                    parser.w_attributes[key] = fin_fields[1]
                 # Write the new <w> start element
                 s = '<w id="{}"'.format(parser.w_attributes.pop('id'))
                 # There almost certainly will be things to write, but we need to check

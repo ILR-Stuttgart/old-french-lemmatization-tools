@@ -50,7 +50,7 @@ def normalize_infile(infile, outfile):
                     fout.write(x[0] + '\n')
     return max(l)
 
-def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', outdir='', inputanno='gold', printunk=False):
+def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', outdir='', inputanno='gold', printunk=False, exportpos=False):
     
     script_path = os.path.dirname(__file__)
     # -1. Run the converter and store converters
@@ -59,6 +59,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     for infile in infiles:
         if os.path.splitext(infile)[1] not in ['', '.txt', '.tsv']:
             converter = scripts.convertfiles.get_converter(infile)
+            converter.exportpos = exportpos
             converters.append(converter)
             converted_infiles.append(opj(tmpdir, os.path.basename(infile + '.txt')))
             converter.from_source(converted_infiles[-1])
@@ -247,6 +248,7 @@ if __name__ == '__main__':
         )
     )
     parser.add_argument('--printunk', action='store_true', help='Print unknown lemmas to screen')
+    parser.add_argument('--exportpos', action='store_true', help='Also export part-of-speech tags when converting back to original format.')
     kwargs = vars(parser.parse_args())
     #print(kwargs)
     if kwargs['tmpdir']:
