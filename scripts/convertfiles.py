@@ -15,6 +15,7 @@ class Converter():
         self.source_file = source_file
         self.source_encoding = source_encoding
         self.exportpos = False
+        self.exportlemma = True
         
     def from_source(self, outfile):
         # Default method, does nothing
@@ -86,8 +87,10 @@ class CsvConverter(Converter):
                         print(row)
                         print(fin_line)
                         raise
-                    row[lemmatag], row[scoretag] = lemma, score
-                    if self.exportpos: row[postag] = pos
+                    if self.exportlemma:
+                        row[lemmatag], row[scoretag] = lemma, score
+                    if self.exportpos:
+                        row[postag] = pos
                     rows.append(row)
                 #print(rows[:10])
             with open(outfile, 'w', newline='', encoding=self.source_encoding) as fout:
@@ -149,8 +152,9 @@ class ConlluConverter(Converter):
                                 print(self.linemap)
                                 print(maptuple)
                                 raise
-                        fields[2] = fin_fields[2] # LEMMA
-                        fields[9] += '|lemmascore=' + str(fin_fields[3]) # score
+                        if self.exportlemma:
+                            fields[2] = fin_fields[2] # LEMMA
+                            fields[9] += '|lemmascore=' + str(fin_fields[3]) # score
                         fout.write('\t'.join(fields) + '\n')
                     while source_line != '': # continue until end of source file.
                         source_line = source_file.readline()
@@ -195,8 +199,9 @@ class TeiConverter(Converter):
                     parser.xmlparser.Parse(source_line)
                     i += 1
                 fin_fields = fin_line.rstrip().split('\t')
-                parser.w_attributes['lemma'] = fin_fields[2]
-                parser.w_attributes['lemma-score'] = fin_fields[3]
+                if self.exportlemma:
+                    parser.w_attributes['lemma'] = fin_fields[2]
+                    parser.w_attributes['lemma-score'] = fin_fields[3]
                 if self.exportpos:
                     key = 'pos_ofl' if 'pos' in parser.w_attributes else 'pos'
                     parser.w_attributes[key] = fin_fields[1]
