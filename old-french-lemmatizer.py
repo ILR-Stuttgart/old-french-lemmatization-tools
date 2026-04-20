@@ -82,7 +82,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             shutil.copy(catfile, opj(tmpdir, 'infile_normed.txt'))
     taggerouts = []
     # 2. Call RNN tagger
-    for lang, fname in [('historical-french', 'rnn_of.txt')]:#, ('middle-french', 'rnn_midf.txt')]:
+    for lang, fname in [('old-french', 'rnn_of.txt')]:#, ('middle-french', 'rnn_midf.txt')]:
     # Updated for RNN Tagger v. 1.4.7
     # Still performs better with just the Old French model.
     #lang, fname = 'middle-french', 'rnn.txt'
@@ -230,7 +230,8 @@ if __name__ == '__main__':
         default=[
             opj(script_path, 'lexicons', 'old-french', 'lgerm', 'lgerm-medieval.tsv'),
             opj(script_path, 'lexicons', 'old-french', 'lgerm-medieval-corrections.tsv'),
-            opj(script_path, 'lexicons', 'old-french', 'bfm', 'bfmgoldlem2022.tsv')
+            opj(script_path, 'lexicons', 'old-french', 'bfm', 'bfmgoldlem2022.tsv'),
+            opj(script_path, 'lexicons', 'old-french', 'cormetaf', 'cormetaf.tsv')
             #opj(script_path, 'lexicons', 'punct.tsv')
         ]
     )
