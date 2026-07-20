@@ -37,21 +37,26 @@ class Converter():
                     
 class CsvConverter(Converter):
     """
-    Processes .csv files with a header row. There must be a "word"
+    Processes .csv files with a header row. There must be a "word" or "form"
     column or it will fail.
     """
     
+    def __init__(self, source_file, sample='', source_encoding='utf-8'):
+        Converter.__init__(self, source_file)
+        self.sample = sample
+    
     def from_source(self, outfile):
+        dialect = csv.Sniffer().sniff(self.sample) if self.sample else 'excel'
         with open(self.source_file, newline='', encoding=self.source_encoding) as fin:
             with open(outfile, 'w', encoding='utf-8') as fout:
-                reader = csv.DictReader(fin, restval='')
+                reader = csv.DictReader(fin, dialect=dialect, restval='')
                 for i, row in enumerate(reader):
                     try:
-                        word = row['word']
+                        word = row['word'] if 'word' in reader.fieldnames else row['form']
                     except KeyError:
-                        raise UnknownFileType('CSV file must have a header and a "word" column.')
+                        raise UnknownFileType('CSV file must have a header and a "word" or "form" column.')
                     fout.write(word)
-                    for postag in ['syntag', 'pos', 'cat', 'cattex-pos', 'ud-pos']:
+                    for postag in ['syntag', 'pos', 'cat', 'ilr_tag', 'cattex-pos', 'ud-pos']:
                         if postag in row: 
                             fout.write('\t' + row[postag])
                             break
@@ -70,9 +75,10 @@ class CsvConverter(Converter):
         #print(self.source_file)
         #print(infile)
         #print(outfile)
+        dialect = csv.Sniffer().sniff(self.sample) if self.sample else 'excel'
         with open(infile, encoding='utf-8') as fin:
             with open(self.source_file, newline='', encoding=self.source_encoding) as source_file:
-                reader = csv.DictReader(source_file)
+                reader = csv.DictReader(source_file, dialect=dialect)
                 rows = []
                 header = reader.fieldnames
                 postag = 'pos_ofl' if 'pos' in header else 'pos'
@@ -94,7 +100,7 @@ class CsvConverter(Converter):
                     rows.append(row)
                 #print(rows[:10])
             with open(outfile, 'w', newline='', encoding=self.source_encoding) as fout:
-                writer = csv.DictWriter(fout, fieldnames=header)
+                writer = csv.DictWriter(fout, dialect=dialect, fieldnames=header)
                 writer.writeheader()
                 writer.writerows(rows)
                 
@@ -254,11 +260,19 @@ class ToSourceParser(MyParser):
         
 def get_converter(source_file):
     ext = os.path.splitext(source_file)[1]
-    if ext in ['', '.txt', '.tsv']:
+    if ext in ['', '.txt']:
         return Converter(source_file)
-    if ext in ['.csv']:
-        #raise UnknownFileType('This type of file is not supported.')
-        return CsvConverter(source_file)
+    if ext in ['.csv', '.tsv']:
+        with open(source_file, newline='') as f:
+            sample = f.read(1024)
+        has_header = csv.Sniffer().has_header(sample)
+        if has_header:
+            return CsvConverter(source_file, sample=sample)
+        elif ext == '.tsv':
+            print('WARNING: Headerless TSV file detected. Assuming it is a tab-separated word--pos--lemma file.')
+            return Converter(source_file)
+        else:
+            raise UnknownFileType('Headerless CSV files are not supported.')
     if ext in ['.conllu']:
         #raise UnknownFileType('This type of file is not supported.')
         return ConlluConverter(source_file)
