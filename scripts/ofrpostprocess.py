@@ -65,14 +65,21 @@ correct_lemmas = [
     ('en', 'ADV', 'an', 'en'),
     ('li', 'PRON', 'il', 'li'),
     ('vus', 'PRON', 'vu', 'vous'), # Anglo-French vu
-    ('sire', 'NOUN', 'seigneur', 'sire'),
+    ('.*', 'NOUN', 'sire', 'seigneur'),
     ('mort', 'NOUN', 'mourir', 'mort'), # pos disambiguation fails here because of mors NOUN
     # saint can be PROPN in gold annotation; confusing sometimes
     ('.*', 'PROPN', 'saint', 'saint'),
+    # "dieu" is always written with a small letter
+    ('.*', 'NOUN', 'Dieu', 'dieu'),
+    ('.*', 'PROPN', 'Dieu', 'dieu'),
+    # the feminine of "ami" is a separate lemma
+    ('.*es?', 'NOUN', 'ami', 'amie'),
     # Correct some common forms that cause problems in QLR
     ('é', 'CCONJ', '.*', 'et'),
     ('ú', 'CCONJ', '.*', 'ou'),
     ('ú', 'PRON', '.*', 'où'),
+    # NCA problems
+    ('se?', 'PRON', 'soi', 'se')
 ]
 
 def main(infile, outfile):

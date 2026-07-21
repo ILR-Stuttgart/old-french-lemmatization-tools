@@ -107,8 +107,11 @@ def remove_empty_lines(infile, outfile, empty_lines=[]):
     print('Restoring empty lines')
     with open(infile, 'r') as fin:
         with open(outfile, 'w') as fout:
+            # REVERSE empty lines so we can pop the final not the first
+            # element (major performance improvement for large lists).
+            empty_lines.reverse()
             for line in fin:
-                add = empty_lines.pop(0) if empty_lines else 0
+                add = empty_lines.pop() if empty_lines else 0
                 if add > 0: fout.write('\n' * add) # add extra empty lines back in
                 if add >= 0: # if add >= 0, write the line
                     fout.write(line)
