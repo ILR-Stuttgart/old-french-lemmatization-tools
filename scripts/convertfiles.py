@@ -41,12 +41,13 @@ class CsvConverter(Converter):
     column or it will fail.
     """
     
-    def __init__(self, source_file, sample='', source_encoding='utf-8'):
+    def __init__(self, source_file, sample='', dialect='excel', source_encoding='utf-8'):
         Converter.__init__(self, source_file)
+        self.dialect = dialect
         self.sample = sample
     
     def from_source(self, outfile):
-        dialect = csv.Sniffer().sniff(self.sample) if self.sample else 'excel'
+        dialect = csv.Sniffer().sniff(self.sample) if self.sample else self.dialect
         with open(self.source_file, newline='', encoding=self.source_encoding) as fin:
             with open(outfile, 'w', encoding='utf-8') as fout:
                 reader = csv.DictReader(fin, dialect=dialect, restval='')
@@ -75,7 +76,7 @@ class CsvConverter(Converter):
         #print(self.source_file)
         #print(infile)
         #print(outfile)
-        dialect = csv.Sniffer().sniff(self.sample) if self.sample else 'excel'
+        dialect = csv.Sniffer().sniff(self.sample) if self.sample else self.dialect
         with open(infile, encoding='utf-8') as fin:
             with open(self.source_file, newline='', encoding=self.source_encoding) as source_file:
                 reader = csv.DictReader(source_file, dialect=dialect)
@@ -102,7 +103,12 @@ class CsvConverter(Converter):
             with open(outfile, 'w', newline='', encoding=self.source_encoding) as fout:
                 writer = csv.DictWriter(fout, dialect=dialect, fieldnames=header)
                 writer.writeheader()
-                writer.writerows(rows)
+                for row in rows:
+                    try:
+                        writer.writerow(row)
+                    except:
+                        print(row)
+                        raise
                 
 class ConlluConverter(Converter):
     
@@ -260,17 +266,25 @@ class ToSourceParser(MyParser):
         
 def get_converter(source_file):
     ext = os.path.splitext(source_file)[1]
+    csv.register_dialect('tsv',
+        delimiter='\t',
+        quoting=csv.QUOTE_NONE,
+        quotechar=None
+    )
     if ext in ['', '.txt']:
         return Converter(source_file)
     if ext in ['.csv', '.tsv']:
         with open(source_file, newline='') as f:
-            sample = f.read(1024)
+            sample = f.read(2048)
         has_header = csv.Sniffer().has_header(sample)
-        if has_header:
-            return CsvConverter(source_file, sample=sample)
+        if ext == '.tsv' and has_header:
+            return CsvConverter(source_file, dialect='tsv')
         elif ext == '.tsv':
             print('WARNING: Headerless TSV file detected. Assuming it is a tab-separated word--pos--lemma file.')
             return Converter(source_file)
+        elif ext == '.csv' and has_header:
+            # For CSV files, use the sniffed sample
+            return CsvConverter(source_file, sample=sample)
         else:
             raise UnknownFileType('Headerless CSV files are not supported.')
     if ext in ['.conllu']:

@@ -28,7 +28,22 @@ import scripts.rnntag
 
 opj = os.path.join
 
-
+def are_lemmas_all_the_same(infile):
+    # Quick sanity check to ignore gold lemmas if they are all set to
+    # the same value...
+    lemmas = []
+    with open(infile, 'r', encoding='utf-8') as f:
+        for i in range(100):
+            line = f.readline()
+            if not line: break
+            line.split('\t')
+            if len(line) == 3: lemmas.append(line[2])
+    x = set(lemmas)
+    if len(x) < 3: # empty plus a single value.
+        return True
+    else:
+        return False
+        
 def normalize_infile(infile, outfile):
     # Removes all annotation.
     # Removes all punctuation within tokens except apostrophes and hyphens,
@@ -57,7 +72,7 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
     print('Converting and concatenating input files.')
     converters, converted_infiles = [], []
     for infile in infiles:
-        if os.path.splitext(infile)[1] not in ['', '.txt', '.tsv']:
+        if os.path.splitext(infile)[1] not in ['', '.txt']:
             converter = scripts.convertfiles.get_converter(infile)
             converter.exportpos = exportpos
             converters.append(converter)
@@ -161,9 +176,12 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
         'ignore_numbers': True,
         'outfile': opj(tmpdir, 'out.txt')
     }
-    if max_cols == 2 and inputanno == 'gold':
+    lemmas_are_the_same = are_lemmas_all_the_same(opj(tmpdir, 'infile_normed.txt'))
+    if max_cols == 3 and lemmas_are_the_same:
+        print('Ignoring lemma information from source text: they are all set to the same value.')
+    if inputanno == 'gold' and (max_cols == 2 or lemmas_are_the_same):
         kwargs['goldpos'] = opj(tmpdir, 'infile_normed.txt')
-    if max_cols == 3 and inputanno == 'gold':
+    elif inputanno == 'gold':
         kwargs['goldposlemma'] = opj(tmpdir, 'infile_normed.txt')
     if max_cols == 2 and inputanno == 'auto':
         kwargs['autopos'] = [opj(tmpdir, 'infile_normed.txt')]
