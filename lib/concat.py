@@ -13,7 +13,7 @@ class Concatenater():
                 with open(path, 'r', encoding='utf-8') as fin:
                     for i, line in enumerate(fin):
                         fout.write(line)
-                        self.path_lines.append((path, i))
+                    self.path_lines.append((path, i))
     
     def split(self, infile, outdir=''):
         if outdir and not os.path.exists(outdir):

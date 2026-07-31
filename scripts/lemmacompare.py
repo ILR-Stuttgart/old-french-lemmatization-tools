@@ -356,8 +356,10 @@ def main(
                 outfile=opj(tmpdir, 'pos.txt')
             )
             posfile = opj(tmpdir, 'pos.txt')
-        else:
+        elif goldpos or goldposlemma:
             posfile = (goldpos + goldposlemma)[0]
+        else:
+            raise SourceDataError('No source for PoS annotation.')
         
         # Step 4. Combine automatic lemmatization into a single form - pos -
         # lemma file

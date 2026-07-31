@@ -212,7 +212,14 @@ class TeiConverter(Converter):
                     i += 1
                 fin_fields = fin_line.rstrip().split('\t')
                 if self.exportlemma:
-                    parser.w_attributes['lemma'] = fin_fields[2]
+                    key = 'lemma_ofl' if 'lemma' in parser.w_attributes else 'lemma'
+                    try:
+                        parser.w_attributes[key] = fin_fields[2]
+                    except:
+                        print(fin_line)
+                        print(source_line)
+                        print(i)
+                        raise
                     parser.w_attributes['lemma-score'] = fin_fields[3]
                 if self.exportpos:
                     key = 'pos_ofl' if 'pos' in parser.w_attributes else 'pos'

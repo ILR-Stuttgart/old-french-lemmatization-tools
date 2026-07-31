@@ -111,6 +111,8 @@ def main(tmpdir, infiles=[], rnnpath='', ttpath='', lexicons=[], outfile='', out
             print("(Move this file or give --rnnpath to disable this.)")
             taggerouts.append(opj(tmpdir, fname))
             rnnpath = 'yes'
+        elif not ttpath:
+            print('WARNING: no tagger provided! Lemmatization may fail if there is no pos annotation in the source.')
     # 2b. Call the Tree Tagger
     if rnnpath and ttpath:
         print('WARNING: Tests suggest that better results are achieved with the RNN Tagger alone.')
@@ -276,4 +278,3 @@ if __name__ == '__main__':
         with tempfile.TemporaryDirectory() as tmpdir:
             kwargs['tmpdir'] = tmpdir
             main(**kwargs)
-    
