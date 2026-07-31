@@ -218,7 +218,11 @@ class TeiConverter(Converter):
                     key = 'pos_ofl' if 'pos' in parser.w_attributes else 'pos'
                     parser.w_attributes[key] = fin_fields[1]
                 # Write the new <w> start element
-                s = '<w id="{}"'.format(parser.w_attributes.pop('id'))
+                try:
+                    s = '<w id="{}"'.format(parser.w_attributes.pop('id'))
+                except KeyError:
+                    # No id.
+                    s = '<w'
                 # There almost certainly will be things to write, but we need to check
                 # to make sure that the XML is valid.
                 if parser.w_attributes: s += ' ' + ' '.join(['{}="{}"'.format(key, xmlent(value)) for key, value in parser.w_attributes.items()])

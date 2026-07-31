@@ -79,7 +79,11 @@ correct_lemmas = [
     ('ú', 'CCONJ', '.*', 'ou'),
     ('ú', 'PRON', '.*', 'où'),
     # NCA problems
-    ('se?', 'PRON', 'soi', 'se')
+    ('se?', 'PRON', 'soi', 'se'),
+    ('l[aoe][nm]', 'PRON', '.*', 'on'),
+    ('da[nm]', 'NOUN', 'damedieu', 'dan'),
+    ('equi', 'ADV', 'ici/iqui', 'enqui'),
+    ('iqui', 'ADV', 'ici/iqui', 'iqui')
 ]
 
 def main(infile, outfile):
@@ -110,3 +114,4 @@ def main(infile, outfile):
                 fout.write('\t'.join([form, pos, lemma, score]) + '\n')
                 last_line = [form, pos, lemma, score]
     return unks
+
