@@ -48,6 +48,7 @@ class CsvConverter(Converter):
     
     def from_source(self, outfile):
         dialect = csv.Sniffer().sniff(self.sample) if self.sample else self.dialect
+        if not dialect.escapechar: dialect.escapechar = '\\'
         with open(self.source_file, newline='', encoding=self.source_encoding) as fin:
             with open(outfile, 'w', encoding='utf-8') as fout:
                 reader = csv.DictReader(fin, dialect=dialect, restval='')
@@ -77,6 +78,7 @@ class CsvConverter(Converter):
         #print(infile)
         #print(outfile)
         dialect = csv.Sniffer().sniff(self.sample) if self.sample else self.dialect
+        if not dialect.escapechar: dialect.escapechar = '\\'
         with open(infile, encoding='utf-8') as fin:
             with open(self.source_file, newline='', encoding=self.source_encoding) as source_file:
                 reader = csv.DictReader(source_file, dialect=dialect)
